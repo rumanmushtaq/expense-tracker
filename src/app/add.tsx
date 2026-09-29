@@ -10,23 +10,29 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { v4 as uuidv4 } from 'uuid';
 import { useExpenses } from '../context/ExpenseContext';
 import { CategoryBadge } from '../components/CategoryBadge';
 import { CATEGORIES } from '../constants/categories';
+import { getCategoryInfo } from '../constants/categories';
 import { ExpenseCategory } from '../types';
-import { Colors, Spacing, FontSize } from '../constants/theme';
+import { Colors, Spacing, FontSize, BorderRadius, Shadow } from '../constants/theme';
 
 export default function AddExpenseScreen() {
   const router = useRouter();
-  const { addExpense } = useExpenses();
+  const { addExpense, settings } = useExpenses();
 
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState<ExpenseCategory>('food');
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
+
+  const selectedCat = getCategoryInfo(category);
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -52,15 +58,14 @@ export default function AddExpenseScreen() {
         note: note.trim() || undefined,
       });
 
-      // Reset form
       setTitle('');
       setAmount('');
       setCategory('food');
       setNote('');
 
-      Alert.alert('Saved!', 'Expense added successfully.', [
+      Alert.alert('Expense Added! ✅', `${title} — ${settings.currency} ${parsedAmount}`, [
         { text: 'Add Another', style: 'default' },
-        { text: 'Go to Dashboard', onPress: () => router.push('/') },
+        { text: 'Dashboard', onPress: () => router.push('/') },
       ]);
     } catch {
       Alert.alert('Error', 'Failed to save expense.');
@@ -74,70 +79,101 @@ export default function AddExpenseScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={styles.content}>
-        {/* Amount Input */}
-        <View style={styles.amountSection}>
-          <Text style={styles.currencyLabel}>PKR</Text>
-          <TextInput
-            style={styles.amountInput}
-            value={amount}
-            onChangeText={setAmount}
-            placeholder="0"
-            placeholderTextColor={Colors.textMuted}
-            keyboardType="numeric"
-            autoFocus
-          />
-        </View>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Amount Hero */}
+        <Animated.View entering={FadeInDown.duration(500).springify()}>
+          <LinearGradient
+            colors={[selectedCat.color + '20', selectedCat.color + '05', Colors.background]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.amountCard}
+          >
+            <Text style={styles.currencyLabel}>{settings.currency}</Text>
+            <TextInput
+              style={styles.amountInput}
+              value={amount}
+              onChangeText={setAmount}
+              placeholder="0"
+              placeholderTextColor={Colors.textDim}
+              keyboardType="numeric"
+              autoFocus
+            />
+            <View style={[styles.categoryIndicator, { backgroundColor: selectedCat.color + '20' }]}>
+              <Ionicons name={selectedCat.icon as any} size={14} color={selectedCat.color} />
+              <Text style={[styles.categoryIndicatorText, { color: selectedCat.color }]}>
+                {selectedCat.label}
+              </Text>
+            </View>
+          </LinearGradient>
+        </Animated.View>
 
-        {/* Title */}
-        <View style={styles.field}>
-          <Text style={styles.label}>Title</Text>
-          <TextInput
-            style={styles.input}
-            value={title}
-            onChangeText={setTitle}
-            placeholder="e.g. Lunch at restaurant"
-            placeholderTextColor={Colors.textMuted}
-          />
-        </View>
+        {/* Title Field */}
+        <Animated.View entering={FadeInUp.delay(100).duration(400)} style={styles.field}>
+          <Text style={styles.label}>What was it for?</Text>
+          <View style={styles.inputContainer}>
+            <Ionicons name="pencil-outline" size={18} color={Colors.textMuted} style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              value={title}
+              onChangeText={setTitle}
+              placeholder="e.g. Lunch at restaurant"
+              placeholderTextColor={Colors.textDim}
+            />
+          </View>
+        </Animated.View>
 
-        {/* Category */}
-        <View style={styles.field}>
+        {/* Category Grid */}
+        <Animated.View entering={FadeInUp.delay(200).duration(400)} style={styles.field}>
           <Text style={styles.label}>Category</Text>
           <View style={styles.categories}>
-            {CATEGORIES.map((cat) => (
+            {CATEGORIES.map((cat, i) => (
               <CategoryBadge
                 key={cat.key}
                 category={cat}
                 selected={category === cat.key}
                 onPress={() => setCategory(cat.key)}
+                index={i}
               />
             ))}
           </View>
-        </View>
+        </Animated.View>
 
-        {/* Note */}
-        <View style={styles.field}>
+        {/* Note Field */}
+        <Animated.View entering={FadeInUp.delay(300).duration(400)} style={styles.field}>
           <Text style={styles.label}>Note (optional)</Text>
-          <TextInput
-            style={[styles.input, styles.noteInput]}
-            value={note}
-            onChangeText={setNote}
-            placeholder="Add a note..."
-            placeholderTextColor={Colors.textMuted}
-            multiline
-            numberOfLines={3}
-          />
-        </View>
+          <View style={[styles.inputContainer, styles.noteContainer]}>
+            <TextInput
+              style={[styles.input, styles.noteInput]}
+              value={note}
+              onChangeText={setNote}
+              placeholder="Add more details..."
+              placeholderTextColor={Colors.textDim}
+              multiline
+              numberOfLines={3}
+            />
+          </View>
+        </Animated.View>
 
         {/* Save Button */}
-        <TouchableOpacity
-          style={[styles.saveButton, saving && styles.saveButtonDisabled]}
-          onPress={handleSave}
-          disabled={saving}
-        >
-          <Text style={styles.saveButtonText}>{saving ? 'Saving...' : 'Add Expense'}</Text>
-        </TouchableOpacity>
+        <Animated.View entering={FadeInUp.delay(400).duration(400)}>
+          <TouchableOpacity
+            onPress={handleSave}
+            disabled={saving}
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={saving ? [Colors.textMuted, Colors.textMuted] : [Colors.primary, Colors.primaryLight]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={[styles.saveButton, Shadow.glow(Colors.primary)]}
+            >
+              <Ionicons name={saving ? 'hourglass' : 'checkmark-circle'} size={22} color="#fff" />
+              <Text style={styles.saveButtonText}>
+                {saving ? 'Saving...' : 'Add Expense'}
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </Animated.View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -152,45 +188,75 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     paddingBottom: 100,
   },
-  amountSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.surface,
-    borderRadius: 20,
+  amountCard: {
+    borderRadius: BorderRadius.xxl,
     padding: Spacing.xl,
+    alignItems: 'center',
     marginBottom: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
   },
   currencyLabel: {
     color: Colors.textSecondary,
-    fontSize: FontSize.xxl,
-    fontWeight: '600',
-    marginRight: Spacing.sm,
+    fontSize: FontSize.lg,
+    fontWeight: '700',
+    letterSpacing: 1,
   },
   amountInput: {
     color: Colors.text,
-    fontSize: 48,
-    fontWeight: '800',
-    minWidth: 100,
+    fontSize: 56,
+    fontWeight: '900',
+    minWidth: 120,
     textAlign: 'center',
+    letterSpacing: -2,
+    paddingVertical: Spacing.sm,
+  },
+  categoryIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.round,
+    gap: 6,
+    marginTop: Spacing.sm,
+  },
+  categoryIndicatorText: {
+    fontSize: FontSize.xs,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   field: {
     marginBottom: Spacing.lg,
   },
   label: {
     color: Colors.textSecondary,
-    fontSize: FontSize.md,
-    fontWeight: '600',
+    fontSize: FontSize.sm,
+    fontWeight: '700',
     marginBottom: Spacing.sm,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    overflow: 'hidden',
+  },
+  inputIcon: {
+    paddingLeft: Spacing.md,
   },
   input: {
-    backgroundColor: Colors.surface,
-    borderRadius: 14,
+    flex: 1,
     padding: Spacing.md,
     color: Colors.text,
-    fontSize: FontSize.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    fontSize: FontSize.md,
+  },
+  noteContainer: {
+    alignItems: 'flex-start',
   },
   noteInput: {
     height: 80,
@@ -201,18 +267,18 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   saveButton: {
-    backgroundColor: Colors.primary,
-    borderRadius: 16,
+    flexDirection: 'row',
+    borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     alignItems: 'center',
-    marginTop: Spacing.md,
-  },
-  saveButtonDisabled: {
-    opacity: 0.6,
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: Spacing.sm,
   },
   saveButtonText: {
-    color: Colors.text,
+    color: '#fff',
     fontSize: FontSize.lg,
-    fontWeight: '700',
+    fontWeight: '800',
+    letterSpacing: 0.3,
   },
 });

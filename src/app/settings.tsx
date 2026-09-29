@@ -10,8 +10,10 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useExpenses } from '../context/ExpenseContext';
-import { Colors, Spacing, FontSize } from '../constants/theme';
+import { Colors, Spacing, FontSize, BorderRadius, Shadow } from '../constants/theme';
 
 export default function SettingsScreen() {
   const { settings, updateSettings } = useExpenses();
@@ -42,64 +44,77 @@ export default function SettingsScreen() {
       emailNotifications: emailNotifs,
     });
 
-    Alert.alert('Saved!', 'Settings updated successfully.');
+    Alert.alert('Saved! ✅', 'Your settings have been updated.');
   };
 
   const currencies = ['PKR', 'USD', 'EUR', 'GBP', 'INR', 'AED'];
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Email Settings */}
-      <View style={styles.section}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      {/* Email Section */}
+      <Animated.View entering={FadeInUp.delay(0).duration(400)} style={[styles.section, Shadow.sm]}>
         <View style={styles.sectionHeader}>
-          <Ionicons name="mail" size={20} color={Colors.primary} />
-          <Text style={styles.sectionTitle}>Email Report</Text>
+          <View style={[styles.sectionIcon, { backgroundColor: Colors.primary + '15' }]}>
+            <Ionicons name="mail" size={18} color={Colors.primary} />
+          </View>
+          <Text style={styles.sectionTitle}>Email Reports</Text>
         </View>
 
         <View style={styles.field}>
           <Text style={styles.label}>Email Address</Text>
-          <TextInput
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            placeholder="your@email.com"
-            placeholderTextColor={Colors.textMuted}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
+          <View style={styles.inputContainer}>
+            <Ionicons name="at" size={16} color={Colors.textMuted} style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              placeholder="your@email.com"
+              placeholderTextColor={Colors.textDim}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+          </View>
           <Text style={styles.hint}>
-            Monthly expense report will be sent to this email on the 1st of each month at 12:00 AM
+            Monthly expense report sent on the 1st of each month
           </Text>
         </View>
 
-        <View style={styles.row}>
-          <Text style={styles.rowLabel}>Email Notifications</Text>
+        <View style={styles.toggleRow}>
+          <View style={styles.toggleInfo}>
+            <Text style={styles.toggleLabel}>Email Notifications</Text>
+            <Text style={styles.toggleHint}>Auto-send monthly reports</Text>
+          </View>
           <Switch
             value={emailNotifs}
             onValueChange={setEmailNotifs}
-            trackColor={{ false: Colors.surfaceLight, true: Colors.primary + '60' }}
+            trackColor={{ false: Colors.surfaceElevated, true: Colors.primary + '50' }}
             thumbColor={emailNotifs ? Colors.primary : Colors.textMuted}
           />
         </View>
-      </View>
+      </Animated.View>
 
-      {/* Budget Settings */}
-      <View style={styles.section}>
+      {/* Budget Section */}
+      <Animated.View entering={FadeInUp.delay(100).duration(400)} style={[styles.section, Shadow.sm]}>
         <View style={styles.sectionHeader}>
-          <Ionicons name="wallet" size={20} color={Colors.success} />
+          <View style={[styles.sectionIcon, { backgroundColor: Colors.success + '15' }]}>
+            <Ionicons name="wallet" size={18} color={Colors.success} />
+          </View>
           <Text style={styles.sectionTitle}>Budget</Text>
         </View>
 
         <View style={styles.field}>
           <Text style={styles.label}>Monthly Budget</Text>
-          <TextInput
-            style={styles.input}
-            value={budget}
-            onChangeText={setBudget}
-            placeholder="50000"
-            placeholderTextColor={Colors.textMuted}
-            keyboardType="numeric"
-          />
+          <View style={styles.inputContainer}>
+            <Text style={styles.currencyPrefix}>{currency}</Text>
+            <TextInput
+              style={styles.input}
+              value={budget}
+              onChangeText={setBudget}
+              placeholder="50000"
+              placeholderTextColor={Colors.textDim}
+              keyboardType="numeric"
+            />
+          </View>
         </View>
 
         <View style={styles.field}>
@@ -113,6 +128,7 @@ export default function SettingsScreen() {
                   currency === c && styles.currencyChipActive,
                 ]}
                 onPress={() => setCurrency(c)}
+                activeOpacity={0.7}
               >
                 <Text
                   style={[
@@ -126,26 +142,48 @@ export default function SettingsScreen() {
             ))}
           </View>
         </View>
-      </View>
+      </Animated.View>
 
-      {/* About */}
-      <View style={styles.section}>
+      {/* About Section */}
+      <Animated.View entering={FadeInUp.delay(200).duration(400)} style={[styles.section, Shadow.sm]}>
         <View style={styles.sectionHeader}>
-          <Ionicons name="information-circle" size={20} color={Colors.warning} />
+          <View style={[styles.sectionIcon, { backgroundColor: Colors.warning + '15' }]}>
+            <Ionicons name="sparkles" size={18} color={Colors.warning} />
+          </View>
           <Text style={styles.sectionTitle}>About</Text>
         </View>
-        <Text style={styles.aboutText}>
-          Expense Tracker v1.0.0{'\n'}
-          Built with React Native + Expo{'\n'}
-          Track your expenses and get monthly email reports.
-        </Text>
-      </View>
+        <View style={styles.aboutGrid}>
+          <View style={styles.aboutItem}>
+            <Text style={styles.aboutLabel}>Version</Text>
+            <Text style={styles.aboutValue}>2.0.0</Text>
+          </View>
+          <View style={styles.aboutItem}>
+            <Text style={styles.aboutLabel}>Built with</Text>
+            <Text style={styles.aboutValue}>React Native + Expo</Text>
+          </View>
+          <View style={styles.aboutItem}>
+            <Text style={styles.aboutLabel}>Developer</Text>
+            <Text style={styles.aboutValue}>Ruman Mushtaq</Text>
+          </View>
+        </View>
+      </Animated.View>
 
       {/* Save Button */}
-      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-        <Ionicons name="checkmark-circle" size={20} color={Colors.text} />
-        <Text style={styles.saveButtonText}>Save Settings</Text>
-      </TouchableOpacity>
+      <Animated.View entering={FadeInUp.delay(300).duration(400)}>
+        <TouchableOpacity onPress={handleSave} activeOpacity={0.8}>
+          <LinearGradient
+            colors={[Colors.primary, Colors.primaryLight]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={[styles.saveButton, Shadow.glow(Colors.primary)]}
+          >
+            <Ionicons name="checkmark-circle" size={20} color="#fff" />
+            <Text style={styles.saveButtonText}>Save Settings</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      </Animated.View>
+
+      <View style={{ height: 40 }} />
     </ScrollView>
   );
 }
@@ -161,55 +199,94 @@ const styles = StyleSheet.create({
   },
   section: {
     backgroundColor: Colors.surface,
-    borderRadius: 16,
-    padding: Spacing.md,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
     marginBottom: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: Spacing.md,
+    gap: 10,
+    marginBottom: Spacing.lg,
+  },
+  sectionIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: BorderRadius.md,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   sectionTitle: {
     color: Colors.text,
     fontSize: FontSize.lg,
-    fontWeight: '700',
+    fontWeight: '800',
+    letterSpacing: -0.3,
   },
   field: {
     marginBottom: Spacing.md,
   },
   label: {
     color: Colors.textSecondary,
-    fontSize: FontSize.sm,
-    fontWeight: '600',
-    marginBottom: Spacing.xs,
+    fontSize: FontSize.xs,
+    fontWeight: '700',
+    marginBottom: Spacing.sm,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
   },
   hint: {
     color: Colors.textMuted,
     fontSize: FontSize.xs,
-    marginTop: Spacing.xs,
+    marginTop: 6,
     lineHeight: 16,
   },
-  input: {
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: Colors.surfaceLight,
-    borderRadius: 12,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    overflow: 'hidden',
+  },
+  inputIcon: {
+    paddingLeft: Spacing.md,
+  },
+  currencyPrefix: {
+    color: Colors.textMuted,
+    fontSize: FontSize.md,
+    fontWeight: '700',
+    paddingLeft: Spacing.md,
+    letterSpacing: 0.5,
+  },
+  input: {
+    flex: 1,
     padding: Spacing.md,
     color: Colors.text,
     fontSize: FontSize.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
   },
-  row: {
+  toggleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: Spacing.sm,
+    paddingTop: Spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: Colors.glassBorder,
+    marginTop: Spacing.sm,
   },
-  rowLabel: {
+  toggleInfo: {
+    flex: 1,
+  },
+  toggleLabel: {
     color: Colors.text,
     fontSize: FontSize.md,
-    fontWeight: '500',
+    fontWeight: '600',
+  },
+  toggleHint: {
+    color: Colors.textMuted,
+    fontSize: FontSize.xs,
+    marginTop: 2,
   },
   currencyRow: {
     flexDirection: 'row',
@@ -217,34 +294,47 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   currencyChip: {
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: 20,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: BorderRadius.round,
     backgroundColor: Colors.surfaceLight,
     borderWidth: 1.5,
-    borderColor: 'transparent',
+    borderColor: Colors.glassBorder,
   },
   currencyChipActive: {
     borderColor: Colors.primary,
-    backgroundColor: Colors.primary + '20',
+    backgroundColor: Colors.primary + '15',
   },
   currencyChipText: {
     color: Colors.textSecondary,
-    fontSize: FontSize.md,
-    fontWeight: '600',
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   currencyChipTextActive: {
     color: Colors.primary,
   },
-  aboutText: {
+  aboutGrid: {
+    gap: 12,
+  },
+  aboutItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  aboutLabel: {
+    color: Colors.textMuted,
+    fontSize: FontSize.sm,
+    fontWeight: '500',
+  },
+  aboutValue: {
     color: Colors.textSecondary,
     fontSize: FontSize.sm,
-    lineHeight: 20,
+    fontWeight: '600',
   },
   saveButton: {
     flexDirection: 'row',
-    backgroundColor: Colors.primary,
-    borderRadius: 16,
+    borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
@@ -252,8 +342,9 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
   },
   saveButtonText: {
-    color: Colors.text,
+    color: '#fff',
     fontSize: FontSize.lg,
-    fontWeight: '700',
+    fontWeight: '800',
+    letterSpacing: 0.3,
   },
 });

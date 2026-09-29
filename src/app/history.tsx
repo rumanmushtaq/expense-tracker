@@ -1,10 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useExpenses } from '../context/ExpenseContext';
 import { ExpenseCard } from '../components/ExpenseCard';
 import { EmptyState } from '../components/EmptyState';
-import { Colors, Spacing, FontSize } from '../constants/theme';
+import { Colors, Spacing, FontSize, BorderRadius, Shadow } from '../constants/theme';
 import { formatCurrency, getMonthLabel } from '../utils/helpers';
 import { sendMonthlyReportEmail } from '../utils/notifications';
 
@@ -23,6 +25,9 @@ export default function HistoryScreen() {
   }, [expenses, selectedYear, selectedMonth]);
 
   const monthTotal = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
+  const avgPerDay = filteredExpenses.length > 0
+    ? monthTotal / new Date(selectedYear, selectedMonth + 1, 0).getDate()
+    : 0;
 
   const goToPrevMonth = () => {
     if (selectedMonth === 0) {
@@ -43,13 +48,9 @@ export default function HistoryScreen() {
   };
 
   const handleDelete = (id: string) => {
-    Alert.alert('Delete Expense', 'Are you sure you want to delete this expense?', [
+    Alert.alert('Delete Expense', 'Are you sure?', [
       { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: () => removeExpense(id),
-      },
+      { text: 'Delete', style: 'destructive', onPress: () => removeExpense(id) },
     ]);
   };
 
@@ -64,25 +65,44 @@ export default function HistoryScreen() {
   return (
     <View style={styles.container}>
       {/* Month Navigator */}
-      <View style={styles.monthNav}>
-        <TouchableOpacity onPress={goToPrevMonth} style={styles.navButton}>
-          <Ionicons name="chevron-back" size={24} color={Colors.text} />
-        </TouchableOpacity>
+      <Animated.View entering={FadeInDown.duration(500)}>
+        <LinearGradient
+          colors={[Colors.primary + '15', Colors.primary + '05']}
+          style={styles.monthNav}
+        >
+          <TouchableOpacity onPress={goToPrevMonth} style={styles.navButton}>
+            <Ionicons name="chevron-back" size={20} color={Colors.textSecondary} />
+          </TouchableOpacity>
 
-        <View style={styles.monthInfo}>
-          <Text style={styles.monthLabel}>{getMonthLabel(selectedYear, selectedMonth)}</Text>
-          <Text style={styles.monthTotal}>{formatCurrency(monthTotal, settings.currency)}</Text>
-        </View>
+          <View style={styles.monthInfo}>
+            <Text style={styles.monthLabel}>
+              {getMonthLabel(selectedYear, selectedMonth)}
+            </Text>
+            <Text style={styles.monthTotal}>
+              {formatCurrency(monthTotal, settings.currency)}
+            </Text>
+            <View style={styles.monthMeta}>
+              <Text style={styles.monthMetaText}>
+                {filteredExpenses.length} transactions
+              </Text>
+              <View style={styles.metaDot} />
+              <Text style={styles.monthMetaText}>
+                ~{formatCurrency(Math.round(avgPerDay), settings.currency)}/day
+              </Text>
+            </View>
+          </View>
 
-        <TouchableOpacity onPress={goToNextMonth} style={styles.navButton}>
-          <Ionicons name="chevron-forward" size={24} color={Colors.text} />
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity onPress={goToNextMonth} style={styles.navButton}>
+            <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
+          </TouchableOpacity>
+        </LinearGradient>
+      </Animated.View>
 
       {/* Email Report Button */}
-      <TouchableOpacity style={styles.emailButton} onPress={handleSendReport}>
-        <Ionicons name="mail-outline" size={18} color={Colors.primary} />
+      <TouchableOpacity style={styles.emailButton} onPress={handleSendReport} activeOpacity={0.7}>
+        <Ionicons name="mail-outline" size={16} color={Colors.primary} />
         <Text style={styles.emailButtonText}>Send Monthly Report</Text>
+        <Ionicons name="arrow-forward" size={14} color={Colors.primary} />
       </TouchableOpacity>
 
       {/* Expense List */}
@@ -90,11 +110,13 @@ export default function HistoryScreen() {
         data={filteredExpenses}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
-        renderItem={({ item }) => (
+        showsVerticalScrollIndicator={false}
+        renderItem={({ item, index }) => (
           <ExpenseCard
             expense={item}
             currency={settings.currency}
             onDelete={handleDelete}
+            index={index}
           />
         )}
         ListEmptyComponent={
@@ -118,32 +140,56 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: Colors.surface,
     margin: Spacing.md,
-    borderRadius: 16,
-    padding: Spacing.md,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
   },
   navButton: {
     width: 40,
     height: 40,
-    borderRadius: 12,
+    borderRadius: BorderRadius.md,
     backgroundColor: Colors.surfaceLight,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
   },
   monthInfo: {
     alignItems: 'center',
+    flex: 1,
   },
   monthLabel: {
     color: Colors.textSecondary,
-    fontSize: FontSize.md,
-    fontWeight: '500',
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   monthTotal: {
     color: Colors.text,
     fontSize: FontSize.xxl,
-    fontWeight: '800',
-    marginTop: 2,
+    fontWeight: '900',
+    marginTop: 4,
+    letterSpacing: -1,
+  },
+  monthMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+    gap: 6,
+  },
+  monthMetaText: {
+    color: Colors.textMuted,
+    fontSize: FontSize.xs,
+    fontWeight: '500',
+  },
+  metaDot: {
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
+    backgroundColor: Colors.textDim,
   },
   emailButton: {
     flexDirection: 'row',
@@ -151,17 +197,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginHorizontal: Spacing.md,
     marginBottom: Spacing.md,
-    padding: Spacing.sm,
-    borderRadius: 12,
+    padding: Spacing.sm + 2,
+    borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: Colors.primary + '40',
-    backgroundColor: Colors.primary + '10',
-    gap: 6,
+    borderColor: Colors.primary + '30',
+    backgroundColor: Colors.primary + '08',
+    gap: 8,
   },
   emailButtonText: {
     color: Colors.primary,
-    fontSize: FontSize.md,
-    fontWeight: '600',
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    flex: 1,
   },
   list: {
     paddingHorizontal: Spacing.md,

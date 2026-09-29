@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
 import { Tabs } from 'expo-router';
+import { View, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ExpenseProvider } from '../context/ExpenseContext';
 import { registerBackgroundTask, requestNotificationPermissions } from '../utils/notifications';
-import { Colors } from '../constants/theme';
+import { Colors, FontSize } from '../constants/theme';
 
 export default function RootLayout() {
   useEffect(() => {
@@ -17,37 +19,56 @@ export default function RootLayout() {
       <StatusBar style="light" />
       <Tabs
         screenOptions={{
-          headerStyle: { backgroundColor: Colors.background },
+          headerStyle: {
+            backgroundColor: Colors.background,
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+          },
           headerTintColor: Colors.text,
-          headerTitleStyle: { fontWeight: '700' },
+          headerTitleStyle: {
+            fontWeight: '800',
+            fontSize: FontSize.xl,
+            letterSpacing: -0.5,
+          },
           tabBarStyle: {
             backgroundColor: Colors.background,
             borderTopColor: Colors.border,
             borderTopWidth: 0.5,
-            height: 85,
-            paddingBottom: 20,
+            height: Platform.OS === 'ios' ? 88 : 70,
+            paddingBottom: Platform.OS === 'ios' ? 24 : 10,
             paddingTop: 8,
           },
           tabBarActiveTintColor: Colors.primary,
-          tabBarInactiveTintColor: Colors.textMuted,
-          tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
+          tabBarInactiveTintColor: Colors.textDim,
+          tabBarLabelStyle: {
+            fontSize: 11,
+            fontWeight: '700',
+            letterSpacing: 0.3,
+          },
         }}
       >
         <Tabs.Screen
           name="index"
           options={{
-            title: 'Dashboard',
+            title: 'Home',
             headerTitle: 'Expense Tracker',
-            tabBarIcon: ({ color, size }) => <Ionicons name="pie-chart" size={size} color={color} />,
+            tabBarIcon: ({ color, size, focused }) => (
+              <View style={focused ? styles.activeTab : undefined}>
+                <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color} />
+              </View>
+            ),
           }}
         />
         <Tabs.Screen
           name="add"
           options={{
             title: 'Add',
-            headerTitle: 'Add Expense',
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="add-circle" size={size + 4} color={color} />
+            headerTitle: 'New Expense',
+            tabBarIcon: ({ color, focused }) => (
+              <View style={[styles.addButton, focused && styles.addButtonActive]}>
+                <Ionicons name="add" size={26} color={focused ? '#fff' : color} />
+              </View>
             ),
           }}
         />
@@ -55,8 +76,12 @@ export default function RootLayout() {
           name="history"
           options={{
             title: 'History',
-            headerTitle: 'Expense History',
-            tabBarIcon: ({ color, size }) => <Ionicons name="time" size={size} color={color} />,
+            headerTitle: 'History',
+            tabBarIcon: ({ color, size, focused }) => (
+              <View style={focused ? styles.activeTab : undefined}>
+                <Ionicons name={focused ? 'time' : 'time-outline'} size={size} color={color} />
+              </View>
+            ),
           }}
         />
         <Tabs.Screen
@@ -64,10 +89,37 @@ export default function RootLayout() {
           options={{
             title: 'Settings',
             headerTitle: 'Settings',
-            tabBarIcon: ({ color, size }) => <Ionicons name="settings" size={size} color={color} />,
+            tabBarIcon: ({ color, size, focused }) => (
+              <View style={focused ? styles.activeTab : undefined}>
+                <Ionicons name={focused ? 'cog' : 'cog-outline'} size={size} color={color} />
+              </View>
+            ),
           }}
         />
       </Tabs>
     </ExpenseProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  activeTab: {
+    transform: [{ scale: 1.1 }],
+  },
+  addButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.surfaceLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  addButtonActive: {
+    backgroundColor: Colors.primary,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+});

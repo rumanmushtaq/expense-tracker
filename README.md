@@ -1,78 +1,77 @@
 # Expense Tracker
 
-A React Native + Expo expense tracker app that tracks your monthly expenses and sends a summary email report at midnight on the 1st of each month.
+A beautiful, feature-rich monthly expense tracking app built with React Native and Expo. Track your daily spending, view category breakdowns, and receive automated monthly email reports.
+
+## Screenshots
+
+Premium dark theme UI with glassmorphism effects, gradient accents, and smooth animations.
 
 ## Features
 
-- **Dashboard** — Monthly spending overview with daily chart, budget progress, and recent transactions
-- **Add Expense** — Quick expense entry with categories (Food, Transport, Shopping, Bills, Entertainment, Health, Education, Other)
-- **History** — Browse expenses by month with navigation, delete entries, and send email reports
-- **Settings** — Configure email address, monthly budget, currency (PKR, USD, EUR, GBP, INR, AED)
-- **Monthly Email Report** — Automatic email with category breakdown and top expenses on the 1st of each month
-- **Background Notifications** — Push notification reminder when your monthly report is ready
-- **Dark Theme** — Beautiful dark UI designed for comfortable daily use
+- **Dashboard** — Hero spending card with animated budget progress, daily spending chart, category breakdown, and recent expenses
+- **Add Expense** — Elegant form with dynamic category indicators, gradient accents, and animated category badges
+- **History** — Month-by-month navigation with transaction count, daily average, and one-tap email reports
+- **Settings** — Email configuration, budget management, multi-currency support (PKR, USD, EUR, GBP, INR, AED)
+- **Monthly Email Reports** — Background task sends detailed expense summaries on the 1st of each month
+- **Animations** — Smooth enter/exit transitions powered by Reanimated 4
+- **Dark Theme** — Deep space-inspired color palette with glassmorphism cards and gradient accents
 
 ## Tech Stack
 
-- **React Native** + **Expo** (TypeScript)
-- **Expo Router** — File-based navigation
-- **AsyncStorage** — Local data persistence
-- **expo-mail-composer** — Email report composition
-- **expo-notifications** — Push notifications
-- **expo-background-fetch** — Background task scheduling
-- **date-fns** — Date utilities
+- **React Native** 0.86 + **Expo SDK 57**
+- **TypeScript** with strict mode
+- **Expo Router** (file-based navigation with tabs)
+- **React Native Reanimated** 4 for fluid animations
+- **Expo Linear Gradient** for premium gradient effects
+- **AsyncStorage** for local data persistence
+- **expo-mail-composer** + **expo-background-fetch** for monthly email automation
+- **Ionicons** for consistent iconography
 
 ## Getting Started
 
 ```bash
+# Clone the repository
+git clone https://github.com/rumanmushtaq/expense-tracker.git
+cd expense-tracker
+
 # Install dependencies
 npm install
 
 # Start the development server
 npx expo start
-
-# Run on specific platform
-npx expo start --android
-npx expo start --ios
 ```
+
+Scan the QR code with Expo Go (Android) or Camera app (iOS) to run on your device.
 
 ## Project Structure
 
 ```
 src/
-├── app/                  # Expo Router screens
-│   ├── _layout.tsx       # Tab navigation layout
-│   ├── index.tsx         # Dashboard screen
-│   ├── add.tsx           # Add expense screen
-│   ├── history.tsx       # Expense history screen
-│   └── settings.tsx      # Settings screen
-├── components/           # Reusable UI components
-│   ├── CategoryBadge.tsx
-│   ├── EmptyState.tsx
-│   ├── ExpenseCard.tsx
-│   ├── MonthlyChart.tsx
-│   └── StatCard.tsx
-├── constants/            # App constants
-│   ├── categories.ts
-│   └── theme.ts
-├── context/              # React context providers
-│   └── ExpenseContext.tsx
-├── types/                # TypeScript type definitions
-│   └── index.ts
-└── utils/                # Utility functions
-    ├── helpers.ts
-    ├── notifications.ts
-    └── storage.ts
+  app/            # Expo Router screens (tabs)
+    _layout.tsx   # Root layout with tab navigator
+    index.tsx     # Dashboard screen
+    add.tsx       # Add expense screen
+    history.tsx   # Expense history screen
+    settings.tsx  # App settings screen
+  components/     # Reusable UI components
+  constants/      # Theme colors, categories
+  context/        # React Context for state
+  types/          # TypeScript interfaces
+  utils/          # Storage, helpers, notifications
 ```
 
-## How the Monthly Email Works
+## Email Report Workflow
 
-1. A background task runs daily checking if it's the 1st of the month
-2. If it is, it generates a report of last month's expenses
-3. A push notification alerts you that the report is ready
-4. The email composer opens with the full report pre-filled
-5. You can also manually send a report from the History screen
+1. Configure your email in Settings
+2. Enable email notifications
+3. On the 1st of each month at midnight, the app generates a detailed report
+4. A notification is sent, and the email composer opens with the report
+5. You can also manually send a report from the History tab
 
 ## License
 
-MIT
+MIT License — see [LICENSE](LICENSE) for details.
+
+## Author
+
+**Ruman Mushtaq** — [@rumanmushtaq](https://github.com/rumanmushtaq)
