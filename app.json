@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "Expense Tracker",
+    "slug": "expense-tracker",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "scheme": "expense-tracker",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rumanmushtaq.expensetracker",
+      "backgroundColor": "#0F0F1A"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0F0F1A",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "package": "com.rumanmushtaq.expensetracker",
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router"
+    ]
+  }
+}
