@@ -8,6 +8,7 @@ import {
   saveSettings as saveSettingsToStorage,
   defaultSettings,
 } from '../utils/storage';
+import { isCurrentMonth, isToday, sumAmounts } from '../utils/expenseFilters';
 
 interface ExpenseContextType {
   expenses: Expense[];
@@ -26,7 +27,7 @@ const ExpenseContext = createContext<ExpenseContextType | undefined>(undefined);
 export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [settings, setSettings] = useState<UserSettings>(defaultSettings);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -61,23 +62,8 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const now = new Date();
-  const currentMonthTotal = expenses
-    .filter((e) => {
-      const d = new Date(e.date);
-      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-    })
-    .reduce((sum, e) => sum + e.amount, 0);
-
-  const todayTotal = expenses
-    .filter((e) => {
-      const d = new Date(e.date);
-      return (
-        d.getFullYear() === now.getFullYear() &&
-        d.getMonth() === now.getMonth() &&
-        d.getDate() === now.getDate()
-      );
-    })
-    .reduce((sum, e) => sum + e.amount, 0);
+  const currentMonthTotal = sumAmounts(expenses.filter((e) => isCurrentMonth(e.date, now)));
+  const todayTotal = sumAmounts(expenses.filter((e) => isToday(e.date, now)));
 
   return (
     <ExpenseContext.Provider

@@ -1,66 +1,27 @@
-import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { useExpenses } from '../context/ExpenseContext';
 import { ExpenseCard } from '../components/ExpenseCard';
 import { EmptyState } from '../components/EmptyState';
 import { Colors, Spacing, FontSize, BorderRadius, Shadow } from '../constants/theme';
 import { formatCurrency, getMonthLabel } from '../utils/helpers';
-import { sendMonthlyReportEmail } from '../utils/notifications';
+import { useHistory } from '../hooks/useHistory';
 
 export default function HistoryScreen() {
-  const { expenses, settings, removeExpense } = useExpenses();
-
-  const now = new Date();
-  const [selectedYear, setSelectedYear] = useState(now.getFullYear());
-  const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
-
-  const filteredExpenses = useMemo(() => {
-    return expenses.filter((e) => {
-      const d = new Date(e.date);
-      return d.getFullYear() === selectedYear && d.getMonth() === selectedMonth;
-    });
-  }, [expenses, selectedYear, selectedMonth]);
-
-  const monthTotal = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
-  const avgPerDay = filteredExpenses.length > 0
-    ? monthTotal / new Date(selectedYear, selectedMonth + 1, 0).getDate()
-    : 0;
-
-  const goToPrevMonth = () => {
-    if (selectedMonth === 0) {
-      setSelectedMonth(11);
-      setSelectedYear((y) => y - 1);
-    } else {
-      setSelectedMonth((m) => m - 1);
-    }
-  };
-
-  const goToNextMonth = () => {
-    if (selectedMonth === 11) {
-      setSelectedMonth(0);
-      setSelectedYear((y) => y + 1);
-    } else {
-      setSelectedMonth((m) => m + 1);
-    }
-  };
-
-  const handleDelete = (id: string) => {
-    Alert.alert('Delete Expense', 'Are you sure?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: () => removeExpense(id) },
-    ]);
-  };
-
-  const handleSendReport = async () => {
-    try {
-      await sendMonthlyReportEmail();
-    } catch {
-      Alert.alert('Error', 'Could not open email composer.');
-    }
-  };
+  const {
+    filteredExpenses,
+    settings,
+    selectedYear,
+    selectedMonth,
+    monthTotal,
+    avgPerDay,
+    goToPrevMonth,
+    goToNextMonth,
+    handleDelete,
+    handleSendReport,
+  } = useHistory();
 
   return (
     <View style={styles.container}>

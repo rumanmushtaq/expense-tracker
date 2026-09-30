@@ -1,62 +1,33 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
-import { useExpenses } from '../context/ExpenseContext';
 import { ExpenseCard } from '../components/ExpenseCard';
 import { StatCard } from '../components/StatCard';
 import { MonthlyChart } from '../components/MonthlyChart';
 import { EmptyState } from '../components/EmptyState';
 import { Colors, Spacing, FontSize, BorderRadius, Shadow } from '../constants/theme';
-import { formatCurrency, getDailyTotals, getMonthLabel } from '../utils/helpers';
-import { getCategoryInfo, CATEGORIES } from '../constants/categories';
+import { formatCurrency, getMonthLabel } from '../utils/helpers';
+import { useDashboard } from '../hooks/useDashboard';
 
 export default function DashboardScreen() {
   const router = useRouter();
-  const { expenses, settings, currentMonthTotal, todayTotal, removeExpense } = useExpenses();
-
-  const now = new Date();
-  const budgetLeft = settings.monthlyBudget - currentMonthTotal;
-  const budgetPercent = Math.min((currentMonthTotal / settings.monthlyBudget) * 100, 100);
-
-  const recentExpenses = useMemo(() => {
-    return expenses
-      .filter((e) => {
-        const d = new Date(e.date);
-        return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-      })
-      .slice(0, 5);
-  }, [expenses]);
-
-  const dailyTotals = useMemo(() => {
-    const monthExpenses = expenses.filter((e) => {
-      const d = new Date(e.date);
-      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-    });
-    return getDailyTotals(monthExpenses, now.getFullYear(), now.getMonth());
-  }, [expenses]);
-
-  const maxDaily = Math.max(...dailyTotals.map((d) => d.total), 1);
-
-  // Category breakdown for the donut visualization
-  const categoryTotals = useMemo(() => {
-    const monthExpenses = expenses.filter((e) => {
-      const d = new Date(e.date);
-      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-    });
-    const totals: Record<string, number> = {};
-    monthExpenses.forEach((e) => {
-      totals[e.category] = (totals[e.category] || 0) + e.amount;
-    });
-    return Object.entries(totals)
-      .map(([key, amount]) => ({ ...getCategoryInfo(key), amount }))
-      .sort((a, b) => b.amount - a.amount);
-  }, [expenses]);
-
-  const budgetColor =
-    budgetPercent > 90 ? Colors.danger : budgetPercent > 70 ? Colors.warning : Colors.success;
+  const {
+    settings,
+    currentMonthTotal,
+    todayTotal,
+    budgetLeft,
+    budgetPercent,
+    budgetColor,
+    recentExpenses,
+    dailyTotals,
+    maxDaily,
+    categoryTotals,
+    removeExpense,
+    now,
+  } = useDashboard();
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>

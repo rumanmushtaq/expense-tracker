@@ -1,78 +1,36 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TextInput,
-  TouchableOpacity,
+  StyleSheet,
   ScrollView,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
-import { useRouter } from 'expo-router';
-import { v4 as uuidv4 } from 'uuid';
-import { useExpenses } from '../context/ExpenseContext';
 import { CategoryBadge } from '../components/CategoryBadge';
-import { CATEGORIES } from '../constants/categories';
-import { getCategoryInfo } from '../constants/categories';
-import { ExpenseCategory } from '../types';
-import { Colors, Spacing, FontSize, BorderRadius, Shadow } from '../constants/theme';
+import { FormLabel } from '../components/FormLabel';
+import { FormInput } from '../components/FormInput';
+import { PrimaryButton } from '../components/PrimaryButton';
+import { CATEGORIES, getCategoryInfo } from '../constants/categories';
+import { Colors, Spacing, FontSize, BorderRadius } from '../constants/theme';
+import { useAddExpense } from '../hooks/useAddExpense';
 
 export default function AddExpenseScreen() {
-  const router = useRouter();
-  const { addExpense, settings } = useExpenses();
-
-  const [title, setTitle] = useState('');
-  const [amount, setAmount] = useState('');
-  const [category, setCategory] = useState<ExpenseCategory>('food');
-  const [note, setNote] = useState('');
-  const [saving, setSaving] = useState(false);
+  const {
+    title, setTitle,
+    amount, setAmount,
+    category, setCategory,
+    note, setNote,
+    saving,
+    handleSave,
+    settings,
+  } = useAddExpense();
 
   const selectedCat = getCategoryInfo(category);
-
-  const handleSave = async () => {
-    if (!title.trim()) {
-      Alert.alert('Missing Title', 'Please enter an expense title.');
-      return;
-    }
-
-    const parsedAmount = parseFloat(amount);
-    if (!amount || isNaN(parsedAmount) || parsedAmount <= 0) {
-      Alert.alert('Invalid Amount', 'Please enter a valid amount.');
-      return;
-    }
-
-    setSaving(true);
-
-    try {
-      await addExpense({
-        id: uuidv4(),
-        title: title.trim(),
-        amount: parsedAmount,
-        category,
-        date: new Date().toISOString(),
-        note: note.trim() || undefined,
-      });
-
-      setTitle('');
-      setAmount('');
-      setCategory('food');
-      setNote('');
-
-      Alert.alert('Expense Added! ✅', `${title} — ${settings.currency} ${parsedAmount}`, [
-        { text: 'Add Another', style: 'default' },
-        { text: 'Dashboard', onPress: () => router.push('/') },
-      ]);
-    } catch {
-      Alert.alert('Error', 'Failed to save expense.');
-    } finally {
-      setSaving(false);
-    }
-  };
 
   return (
     <KeyboardAvoidingView
@@ -80,6 +38,7 @@ export default function AddExpenseScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+
         {/* Amount Hero */}
         <Animated.View entering={FadeInDown.duration(500).springify()}>
           <LinearGradient
@@ -109,22 +68,18 @@ export default function AddExpenseScreen() {
 
         {/* Title Field */}
         <Animated.View entering={FadeInUp.delay(100).duration(400)} style={styles.field}>
-          <Text style={styles.label}>What was it for?</Text>
-          <View style={styles.inputContainer}>
-            <Ionicons name="pencil-outline" size={18} color={Colors.textMuted} style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              value={title}
-              onChangeText={setTitle}
-              placeholder="e.g. Lunch at restaurant"
-              placeholderTextColor={Colors.textDim}
-            />
-          </View>
+          <FormLabel>What was it for?</FormLabel>
+          <FormInput
+            icon="pencil-outline"
+            value={title}
+            onChangeText={setTitle}
+            placeholder="e.g. Lunch at restaurant"
+          />
         </Animated.View>
 
         {/* Category Grid */}
         <Animated.View entering={FadeInUp.delay(200).duration(400)} style={styles.field}>
-          <Text style={styles.label}>Category</Text>
+          <FormLabel>Category</FormLabel>
           <View style={styles.categories}>
             {CATEGORIES.map((cat, i) => (
               <CategoryBadge
@@ -140,40 +95,26 @@ export default function AddExpenseScreen() {
 
         {/* Note Field */}
         <Animated.View entering={FadeInUp.delay(300).duration(400)} style={styles.field}>
-          <Text style={styles.label}>Note (optional)</Text>
-          <View style={[styles.inputContainer, styles.noteContainer]}>
-            <TextInput
-              style={[styles.input, styles.noteInput]}
-              value={note}
-              onChangeText={setNote}
-              placeholder="Add more details..."
-              placeholderTextColor={Colors.textDim}
-              multiline
-              numberOfLines={3}
-            />
-          </View>
+          <FormLabel>Note (optional)</FormLabel>
+          <FormInput
+            value={note}
+            onChangeText={setNote}
+            placeholder="Add more details..."
+            multiline
+            numberOfLines={3}
+          />
         </Animated.View>
 
         {/* Save Button */}
         <Animated.View entering={FadeInUp.delay(400).duration(400)}>
-          <TouchableOpacity
+          <PrimaryButton
+            label={saving ? 'Saving...' : 'Add Expense'}
+            icon={saving ? 'hourglass' : 'checkmark-circle'}
             onPress={handleSave}
             disabled={saving}
-            activeOpacity={0.8}
-          >
-            <LinearGradient
-              colors={saving ? [Colors.textMuted, Colors.textMuted] : [Colors.primary, Colors.primaryLight]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={[styles.saveButton, Shadow.glow(Colors.primary)]}
-            >
-              <Ionicons name={saving ? 'hourglass' : 'checkmark-circle'} size={22} color="#fff" />
-              <Text style={styles.saveButtonText}>
-                {saving ? 'Saving...' : 'Add Expense'}
-              </Text>
-            </LinearGradient>
-          </TouchableOpacity>
+          />
         </Animated.View>
+
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -229,56 +170,8 @@ const styles = StyleSheet.create({
   field: {
     marginBottom: Spacing.lg,
   },
-  label: {
-    color: Colors.textSecondary,
-    fontSize: FontSize.sm,
-    fontWeight: '700',
-    marginBottom: Spacing.sm,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
-    overflow: 'hidden',
-  },
-  inputIcon: {
-    paddingLeft: Spacing.md,
-  },
-  input: {
-    flex: 1,
-    padding: Spacing.md,
-    color: Colors.text,
-    fontSize: FontSize.md,
-  },
-  noteContainer: {
-    alignItems: 'flex-start',
-  },
-  noteInput: {
-    height: 80,
-    textAlignVertical: 'top',
-  },
   categories: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-  },
-  saveButton: {
-    flexDirection: 'row',
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    marginTop: Spacing.sm,
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontSize: FontSize.lg,
-    fontWeight: '800',
-    letterSpacing: 0.3,
   },
 });

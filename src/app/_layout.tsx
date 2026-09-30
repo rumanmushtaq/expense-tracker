@@ -1,18 +1,15 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Tabs } from 'expo-router';
 import { View, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ExpenseProvider } from '../context/ExpenseContext';
-import { registerBackgroundTask, requestNotificationPermissions } from '../utils/notifications';
 import { Colors, FontSize } from '../constants/theme';
+import { useAppSetup } from '../hooks/useAppSetup';
 
 export default function RootLayout() {
-  useEffect(() => {
-    requestNotificationPermissions();
-    registerBackgroundTask();
-  }, []);
+  useAppSetup();
 
   return (
     <ExpenseProvider>
