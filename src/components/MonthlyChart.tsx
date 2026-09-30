@@ -3,31 +3,31 @@ import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Colors } from '../constants/theme';
+import type { ChartDataPoint } from '../types';
 
 interface Props {
-  data: { date: string; total: number }[];
+  data: ChartDataPoint[];
   maxValue: number;
 }
 
 export const MonthlyChart = ({ data, maxValue }: Props) => {
   const chartMax = maxValue || 1;
-  const showEveryN = data.length > 15 ? 5 : data.length > 10 ? 3 : 2;
+  const showEveryN = data.length <= 7 ? 1 : 5;
 
   return (
     <Animated.View entering={FadeInUp.delay(200).duration(600)} className="pt-2">
       <View className="flex-row items-end h-[140px] gap-0.5 pb-6">
         {data?.map((item, index) => {
           const heightPercent = (item.total / chartMax) * 100;
-          const isToday = index === new Date().getDate() - 1;
           const hasSpending = item.total > 0;
 
           return (
-            <View key={item.date} className="flex-1 items-center justify-end h-full">
+            <View key={index} className="flex-1 items-center justify-end h-full">
               <View className="w-[85%] h-full justify-end items-center">
                 {hasSpending ? (
                   <LinearGradient
                     colors={
-                      isToday
+                      item.isToday
                         ? [Colors.primary, Colors.primaryLight]
                         : [Colors.primaryLight + '60', Colors.primaryLight + '30']
                     }
@@ -42,12 +42,12 @@ export const MonthlyChart = ({ data, maxValue }: Props) => {
               {index % showEveryN === 0 && (
                 <Text
                   className="absolute bottom-0"
-                  style={[styles.label, isToday && styles.labelActive]}
+                  style={[styles.label, item.isToday && styles.labelActive]}
                 >
-                  {item.date}
+                  {item.label}
                 </Text>
               )}
-              {isToday && (
+              {item.isToday && (
                 <View className="absolute w-1 h-1 rounded-sm bg-primary" style={{ bottom: 12 }} />
               )}
             </View>

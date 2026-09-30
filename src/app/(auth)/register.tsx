@@ -15,11 +15,14 @@ import { FormInput } from '../../components/FormInput';
 import { PrimaryButton } from '../../components/PrimaryButton';
 import { Colors, BorderRadius, Shadow } from '../../constants/theme';
 import { useRegisterForm } from '../../hooks/useRegisterForm';
+import { ConfirmModal } from '../../components/ConfirmModal';
 
 export default function RegisterScreen() {
   const router = useRouter();
-  const { form, handleRegister, showPassword, togglePassword, showConfirm, toggleConfirm } =
-    useRegisterForm();
+  const {
+    form, handleRegister, showPassword, togglePassword, showConfirm, toggleConfirm,
+    biometricModalVisible, confirmBiometric, dismissBiometric,
+  } = useRegisterForm();
   const {
     control,
     formState: { errors },
@@ -160,6 +163,19 @@ export default function RegisterScreen() {
               />
             </View>
           </Animated.View>
+
+          <ConfirmModal
+            visible={biometricModalVisible}
+            title="Enable Biometric Login?"
+            message="Use Face ID or fingerprint to sign in faster next time."
+            icon="finger-print"
+            iconColor={Colors.success}
+            confirmLabel="Enable"
+            cancelLabel="Not Now"
+            confirmColor={Colors.success}
+            onConfirm={confirmBiometric}
+            onDismiss={dismissBiometric}
+          />
 
           {/* ── Footer ── */}
           <Animated.View entering={FadeInUp.delay(380).duration(400)} style={styles.footer}>

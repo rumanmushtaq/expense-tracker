@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { ExpenseCard } from '../../components/ExpenseCard';
 import { EmptyState } from '../../components/EmptyState';
+import { ConfirmModal } from '../../components/ConfirmModal';
 import { Colors, BorderRadius, Spacing } from '../../constants/theme';
 import { formatCurrency, getMonthLabel } from '../../utils/helpers';
 import { useHistory } from '../../hooks/useHistory';
@@ -21,6 +22,9 @@ export default function HistoryScreen() {
     goToNextMonth,
     handleDelete,
     handleSendReport,
+    deleteModalVisible,
+    confirmDelete,
+    dismissDeleteModal,
   } = useHistory();
 
   return (
@@ -70,6 +74,18 @@ export default function HistoryScreen() {
         <Text className="text-primary text-sm font-bold flex-1">Send Monthly Report</Text>
         <Ionicons name="arrow-forward" size={14} color={Colors.primary} />
       </TouchableOpacity>
+
+      <ConfirmModal
+        visible={deleteModalVisible}
+        title="Delete Expense"
+        message="This expense will be permanently removed. This action cannot be undone."
+        icon="trash-outline"
+        iconColor={Colors.danger}
+        confirmLabel="Delete"
+        confirmColor={Colors.danger}
+        onConfirm={confirmDelete}
+        onDismiss={dismissDeleteModal}
+      />
 
       {/* Expense List */}
       <FlatList

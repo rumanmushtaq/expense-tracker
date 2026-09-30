@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Alert } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { valibotResolver } from '@hookform/resolvers/valibot';
 import { useAuth } from '../context/AuthContext';
 import { LoginSchema, LoginFormValues } from '../schemas/authSchema';
 import { useBiometric } from './useBiometric';
 import { authApi } from '../api/auth';
+import { toast } from '../utils/toast';
 
 export function useLoginForm() {
   const { login, biometricEnabled, restoreSession } = useAuth();
@@ -18,7 +18,6 @@ export function useLoginForm() {
     defaultValues: { email: '', password: '' },
   });
 
-  // Auto-trigger biometric on mount if a Supabase session already exists
   useEffect(() => {
     const tryBiometric = async () => {
       if (!biometricEnabled) return;
@@ -38,20 +37,20 @@ export function useLoginForm() {
       await login(data.email, data.password);
       form.reset();
     } catch (e: any) {
-      Alert.alert('Login Failed', e.message ?? 'Something went wrong.');
+      toast.error(e?.message || 'Something went wrong.', 'Login Failed');
     }
   });
 
   const handleBiometricLogin = useCallback(async () => {
     const available = await biometric.isAvailable();
     if (!available) {
-      Alert.alert('Not Available', 'Biometric authentication is not set up on this device.');
+      toast.info('Biometric authentication is not set up on this device.', 'Not Available');
       return;
     }
     const success = await biometric.authenticate();
     if (success) {
       const restored = await restoreSession();
-      if (!restored) Alert.alert('Session Expired', 'Please sign in with your password.');
+      if (!restored) toast.info('Please sign in with your password.', 'Session Expired');
     }
   }, [biometric, restoreSession]);
 

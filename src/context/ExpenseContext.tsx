@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { Expense, UserSettings } from '../types';
+import { Expense, NewExpense, UserSettings } from '../types';
 import { authApi } from '../api/auth';
 import { expensesApi } from '../api/expenses';
 import { settingsApi } from '../api/settings';
@@ -16,7 +16,7 @@ interface ExpenseContextType {
   expenses: Expense[];
   settings: UserSettings;
   loading: boolean;
-  addExpense: (expense: Expense) => Promise<void>;
+  addExpense: (expense: NewExpense) => Promise<void>;
   removeExpense: (id: string) => Promise<void>;
   updateSettings: (settings: UserSettings) => Promise<void>;
   refreshExpenses: () => Promise<void>;
@@ -33,6 +33,14 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    // Load current session immediately on mount
+    authApi.getSession().then((session) => {
+      const id = session?.user?.id ?? null;
+      setUserId(id);
+      if (!id) setLoading(false);
+    });
+
+    // Listen for future auth changes (login / logout)
     const { data: { subscription } } = authApi.onAuthStateChange((_event, session) => {
       const id = session?.user?.id ?? null;
       setUserId(id);
@@ -63,8 +71,8 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
     if (userId) loadData(userId);
   }, [userId, loadData]);
 
-  const addExpense = async (expense: Expense) => {
-    if (!userId) return;
+  const addExpense = async (expense: NewExpense) => {
+    if (!userId) throw new Error('Not authenticated.');
     const created = await expensesApi.create(expense, userId);
     setExpenses((prev) => [created, ...prev]);
   };

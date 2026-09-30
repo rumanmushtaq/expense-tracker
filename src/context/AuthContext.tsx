@@ -17,7 +17,8 @@ interface AuthContextType {
   logout: () => Promise<void>;
   restoreSession: () => Promise<boolean>;
   setBiometricEnabled: (value: boolean) => Promise<void>;
-  resetPassword: (email: string) => Promise<void>;
+  resetPassword: (email: string, redirectTo?: string) => Promise<void>;
+  setNewPassword: (newPassword: string) => Promise<void>;
   updateProfile: (name: string) => Promise<void>;
   updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 }
@@ -74,8 +75,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setBioState(value);
   }, []);
 
-  const resetPassword = useCallback(async (email: string) => {
-    await authApi.resetPassword(email);
+  const resetPassword = useCallback(async (email: string, redirectTo?: string) => {
+    await authApi.resetPassword(email, redirectTo);
+  }, []);
+
+  const setNewPassword = useCallback(async (newPassword: string) => {
+    await authApi.setNewPassword(newPassword);
   }, []);
 
   const updateProfile = useCallback(async (name: string) => {
@@ -90,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, biometricEnabled, login, register, logout, restoreSession, setBiometricEnabled, resetPassword, updateProfile, updatePassword }}
+      value={{ user, loading, biometricEnabled, login, register, logout, restoreSession, setBiometricEnabled, resetPassword, setNewPassword, updateProfile, updatePassword }}
     >
       {children}
     </AuthContext.Provider>

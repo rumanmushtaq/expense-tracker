@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { useExpenses } from '../context/ExpenseContext';
 import { isCurrentMonth } from '../utils/expenseFilters';
-import { getDailyTotals } from '../utils/helpers';
 import { getCategoryInfo } from '../constants/categories';
 import { Colors } from '../constants/theme';
 
@@ -21,13 +20,6 @@ export function useDashboard() {
 
   const recentExpenses = useMemo(() => currentMonthExpenses?.slice(0, 5), [currentMonthExpenses]);
 
-  const dailyTotals = useMemo(
-    () => getDailyTotals(currentMonthExpenses, now.getFullYear(), now.getMonth()),
-    [currentMonthExpenses]
-  );
-
-  const maxDaily = Math.max(...(dailyTotals?.map((d) => d.total) ?? []), 1);
-
   const categoryTotals = useMemo(() => {
     const totals: Record<string, number> = {};
     currentMonthExpenses?.forEach((e) => {
@@ -46,8 +38,6 @@ export function useDashboard() {
     budgetPercent,
     budgetColor,
     recentExpenses,
-    dailyTotals,
-    maxDaily,
     categoryTotals,
     removeExpense,
     now,

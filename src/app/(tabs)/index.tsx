@@ -1,5 +1,8 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View, Text, ScrollView, TouchableOpacity,
+  StyleSheet, ActivityIndicator,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
@@ -11,6 +14,15 @@ import { EmptyState } from '../../components/EmptyState';
 import { Colors, Spacing, BorderRadius } from '../../constants/theme';
 import { formatCurrency, getMonthLabel } from '../../utils/helpers';
 import { useDashboard } from '../../hooks/useDashboard';
+import { useChartFilter } from '../../hooks/useChartFilter';
+import type { ChartFilter } from '../../types';
+
+const CHART_FILTERS: { key: ChartFilter; label: string }[] = [
+  { key: 'week', label: 'This Week' },
+  { key: 'month', label: 'This Month' },
+  { key: '7days', label: '7 Days' },
+  { key: '30days', label: '30 Days' },
+];
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -22,12 +34,12 @@ export default function DashboardScreen() {
     budgetPercent,
     budgetColor,
     recentExpenses,
-    dailyTotals,
-    maxDaily,
     categoryTotals,
     removeExpense,
     now,
   } = useDashboard();
+
+  const { filter, setFilter, chartData, maxValue, loading: chartLoading } = useChartFilter();
 
   return (
     <ScrollView className="flex-1 bg-background" contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -109,11 +121,40 @@ export default function DashboardScreen() {
         </Animated.View>
       )}
 
-      {/* Daily Chart */}
+      {/* Daily Spending Chart */}
       <View className="mb-6">
-        <Text className="text-white text-lg font-extrabold mb-2 tracking-[-0.3px]">Daily Spending</Text>
+        <View className="flex-row justify-between items-center mb-3">
+          <Text className="text-white text-lg font-extrabold tracking-[-0.3px]">Daily Spending</Text>
+        </View>
+
+        {/* Filter Pills */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filtersRow}
+          className="mb-3"
+        >
+          {CHART_FILTERS.map((f) => (
+            <TouchableOpacity
+              key={f.key}
+              onPress={() => setFilter(f.key)}
+              style={[styles.pill, filter === f.key && styles.pillActive]}
+            >
+              <Text style={[styles.pillLabel, filter === f.key && styles.pillLabelActive]}>
+                {f.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
         <View className="bg-surface rounded-theme-xl p-4 border border-glass-border" style={styles.chartShadow}>
-          <MonthlyChart data={dailyTotals} maxValue={maxDaily} />
+          {chartLoading ? (
+            <View style={styles.chartLoader}>
+              <ActivityIndicator size="small" color={Colors.primary} />
+            </View>
+          ) : (
+            <MonthlyChart data={chartData} maxValue={maxValue} />
+          )}
         </View>
       </View>
 
@@ -153,11 +194,41 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
     overflow: 'hidden',
   },
+  filtersRow: {
+    gap: 8,
+    paddingRight: 4,
+  },
+  pill: {
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: Colors.surfaceLight,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  pillActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  pillLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: Colors.textDim,
+  },
+  pillLabelActive: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
   chartShadow: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 2,
+  },
+  chartLoader: {
+    height: 140,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

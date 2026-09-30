@@ -11,9 +11,13 @@ import { CardSection } from '../../components/CardSection';
 import { SectionHeader } from '../../components/SectionHeader';
 import { useSettingsForm, CURRENCIES } from '../../hooks/useSettingsForm';
 import { useAuth } from '../../context/AuthContext';
+import { ConfirmModal } from '../../components/ConfirmModal';
 
 export default function SettingsScreen() {
-  const { form, handleSave, biometricEnabled, handleBiometricToggle, handleLogout } = useSettingsForm();
+  const {
+    form, handleSave, biometricEnabled, handleBiometricToggle,
+    signOutModalVisible, requestSignOut, confirmSignOut, dismissSignOut,
+  } = useSettingsForm();
   const { user } = useAuth();
   const { control, formState: { errors }, watch } = form;
   const currency = watch('currency');
@@ -209,7 +213,7 @@ export default function SettingsScreen() {
         <TouchableOpacity
           className="flex-row items-center justify-center py-3.5 rounded-theme-lg border gap-2"
           style={{ borderColor: Colors.danger + '40', backgroundColor: Colors.danger + '08' }}
-          onPress={handleLogout}
+          onPress={requestSignOut}
           activeOpacity={0.7}
         >
           <Ionicons name="log-out-outline" size={18} color={Colors.danger} />
@@ -218,6 +222,18 @@ export default function SettingsScreen() {
       </Animated.View>
 
       <View className="h-10" />
+
+      <ConfirmModal
+        visible={signOutModalVisible}
+        title="Sign Out"
+        message="Are you sure you want to sign out of your account?"
+        icon="log-out-outline"
+        iconColor={Colors.danger}
+        confirmLabel="Sign Out"
+        confirmColor={Colors.danger}
+        onConfirm={confirmSignOut}
+        onDismiss={dismissSignOut}
+      />
     </ScrollView>
   );
 }

@@ -1,49 +1,40 @@
-import { Alert } from 'react-native';
-import { useRouter } from 'expo-router';
-import { v4 as uuidv4 } from 'uuid';
 import { useForm } from 'react-hook-form';
 import { valibotResolver } from '@hookform/resolvers/valibot';
 import { useExpenses } from '../context/ExpenseContext';
-import { ExpenseCategory } from '../types';
-import { AddExpenseSchema, AddExpenseFormValues } from '../schemas/expenseSchema';
+import { AddExpenseSchema, AddExpenseFormValues, AddExpenseOutput } from '../schemas/expenseSchema';
+import { toast } from '../utils/toast';
 
 export function useAddExpense() {
-  const router = useRouter();
   const { addExpense, settings } = useExpenses();
 
-  const form = useForm<AddExpenseFormValues>({
+  const form = useForm<AddExpenseFormValues, unknown, AddExpenseOutput>({
     resolver: valibotResolver(AddExpenseSchema),
     defaultValues: {
       title: '',
       amount: '',
-      category: 'food' as ExpenseCategory,
+      category: 'food',
       note: '',
     },
   });
 
   const handleSave = form.handleSubmit(async (data) => {
     try {
+      const today = new Date().toISOString().split('T')[0];
       await addExpense({
-        id: uuidv4(),
-        title: data.title.trim(),
-        amount: parseFloat(data.amount),
-        category: data.category as ExpenseCategory,
-        date: new Date().toISOString(),
-        note: data.note?.trim() || undefined,
+        title: data.title,
+        amount: data.amount,
+        category: data.category,
+        date: today,
+        note: data.note || undefined,
       });
-
       form.reset();
-
-      Alert.alert(
-        'Expense Added! ✅',
-        `${data.title} — ${settings.currency} ${parseFloat(data.amount)}`,
-        [
-          { text: 'Add Another', style: 'default' },
-          { text: 'Dashboard', onPress: () => router.push('/') },
-        ],
+      toast.success(
+        `${data.title} — ${settings.currency} ${data.amount.toLocaleString()}`,
+        'Expense Added',
       );
-    } catch {
-      Alert.alert('Error', 'Failed to save expense.');
+    } catch (e: any) {
+      console.error('[useAddExpense]', e);
+      toast.error(e?.message || 'Failed to save expense.');
     }
   });
 

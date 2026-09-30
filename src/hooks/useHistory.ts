@@ -1,8 +1,8 @@
-import { useState, useMemo } from 'react';
-import { Alert } from 'react-native';
+import { useState, useMemo, useCallback } from 'react';
 import { useExpenses } from '../context/ExpenseContext';
 import { sumAmounts } from '../utils/expenseFilters';
 import { sendMonthlyReportEmail } from '../utils/notifications';
+import { toast } from '../utils/toast';
 
 export function useHistory() {
   const { expenses, settings, removeExpense } = useExpenses();
@@ -10,6 +10,8 @@ export function useHistory() {
   const now = new Date();
   const [selectedYear, setSelectedYear] = useState<number>(now.getFullYear());
   const [selectedMonth, setSelectedMonth] = useState<number>(now.getMonth());
+  const [deleteModalVisible, setDeleteModalVisible] = useState<boolean>(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const filteredExpenses = useMemo(
     () =>
@@ -44,18 +46,27 @@ export function useHistory() {
     }
   };
 
-  const handleDelete = (id: string) => {
-    Alert.alert('Delete Expense', 'Are you sure?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: () => removeExpense(id) },
-    ]);
-  };
+  const handleDelete = useCallback((id: string) => {
+    setPendingDeleteId(id);
+    setDeleteModalVisible(true);
+  }, []);
+
+  const confirmDelete = useCallback(async () => {
+    if (pendingDeleteId) await removeExpense(pendingDeleteId);
+    setDeleteModalVisible(false);
+    setPendingDeleteId(null);
+  }, [pendingDeleteId, removeExpense]);
+
+  const dismissDeleteModal = useCallback(() => {
+    setDeleteModalVisible(false);
+    setPendingDeleteId(null);
+  }, []);
 
   const handleSendReport = async () => {
     try {
       await sendMonthlyReportEmail();
     } catch {
-      Alert.alert('Error', 'Could not open email composer.');
+      toast.error('Could not open email composer.');
     }
   };
 
@@ -70,5 +81,8 @@ export function useHistory() {
     goToNextMonth,
     handleDelete,
     handleSendReport,
+    deleteModalVisible,
+    confirmDelete,
+    dismissDeleteModal,
   };
 }

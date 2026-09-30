@@ -144,10 +144,10 @@ export default function AddExpenseScreen() {
         {/* Save Button */}
         <Animated.View entering={FadeInUp.delay(400).duration(400)}>
           <PrimaryButton
-            label={saving ? 'Saving...' : 'Add Expense'}
-            icon={saving ? 'hourglass' : 'checkmark-circle'}
+            label="Add Expense"
+            icon="checkmark-circle"
             onPress={handleSave}
-            disabled={saving}
+            loading={saving}
           />
         </Animated.View>
 

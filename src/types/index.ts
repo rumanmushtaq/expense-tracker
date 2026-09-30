@@ -7,6 +7,16 @@ export interface Expense {
   note?: string;
 }
 
+export type NewExpense = Omit<Expense, 'id'>;
+
+export type ChartFilter = 'week' | 'month' | '7days' | '30days';
+
+export interface ChartDataPoint {
+  label: string;
+  total: number;
+  isToday: boolean;
+}
+
 export type ExpenseCategory =
   | 'food'
   | 'transport'

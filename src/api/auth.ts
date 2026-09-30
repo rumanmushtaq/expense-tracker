@@ -38,8 +38,16 @@ export const authApi = {
     return supabase.auth.onAuthStateChange(callback);
   },
 
-  resetPassword: async (email: string) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase());
+  resetPassword: async (email: string, redirectTo?: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(
+      email.trim().toLowerCase(),
+      redirectTo ? { redirectTo } : undefined,
+    );
+    if (error) throw new Error(error.message);
+  },
+
+  setNewPassword: async (newPassword: string) => {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
     if (error) throw new Error(error.message);
   },
 
