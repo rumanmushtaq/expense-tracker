@@ -91,7 +91,7 @@ export default function DashboardScreen() {
         <Animated.View entering={FadeInUp.delay(200).duration(500)} className="mb-6">
           <Text className="text-white text-lg font-extrabold mb-2 tracking-[-0.3px]">Categories</Text>
           <View className="bg-surface rounded-theme-xl p-4 border border-glass-border gap-3.5">
-            {categoryTotals.slice(0, 4).map((cat) => (
+            {categoryTotals?.slice(0, 4)?.map((cat) => (
               <View key={cat.key} className="flex-row items-center">
                 <View className="w-2.5 h-2.5 rounded-md" style={{ backgroundColor: cat.color }} />
                 <View className="flex-1 ml-4">
@@ -128,7 +128,7 @@ export default function DashboardScreen() {
         </View>
 
         {recentExpenses.length > 0 ? (
-          recentExpenses.map((expense, i) => (
+          recentExpenses?.map((expense, i) => (
             <ExpenseCard key={expense.id} expense={expense} currency={settings.currency} onDelete={removeExpense} index={i} />
           ))
         ) : (

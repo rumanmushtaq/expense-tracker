@@ -13,7 +13,7 @@ export function useHistory() {
 
   const filteredExpenses = useMemo(
     () =>
-      expenses.filter((e) => {
+      expenses?.filter((e) => {
         const d = new Date(e.date);
         return d.getFullYear() === selectedYear && d.getMonth() === selectedMonth;
       }),

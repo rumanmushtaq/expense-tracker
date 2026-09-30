@@ -22,13 +22,13 @@ export const saveExpense = async (expense: Expense): Promise<void> => {
 
 export const deleteExpense = async (id: string): Promise<void> => {
   const expenses = await getExpenses();
-  const filtered = expenses.filter((e) => e.id !== id);
+  const filtered = expenses?.filter((e) => e.id !== id) ?? [];
   await AsyncStorage.setItem(EXPENSES_KEY, JSON.stringify(filtered));
 };
 
 export const getExpensesByMonth = async (year: number, month: number): Promise<Expense[]> => {
   const expenses = await getExpenses();
-  return expenses.filter((e) => {
+  return expenses?.filter((e) => {
     const d = new Date(e.date);
     return d.getFullYear() === year && d.getMonth() === month;
   });

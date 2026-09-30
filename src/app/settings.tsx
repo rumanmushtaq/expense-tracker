@@ -108,7 +108,7 @@ export default function SettingsScreen() {
               name="currency"
               render={({ field: { value, onChange } }) => (
                 <View className="flex-row flex-wrap gap-2">
-                  {CURRENCIES.map((c) => (
+                  {CURRENCIES?.map((c) => (
                     <TouchableOpacity
                       key={c}
                       className="px-[18px] py-2.5 rounded-full border-[1.5px]"

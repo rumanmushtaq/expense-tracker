@@ -105,7 +105,7 @@ export default function AddExpenseScreen() {
             name="category"
             render={({ field: { value, onChange } }) => (
               <View className="flex-row flex-wrap">
-                {CATEGORIES.map((cat, i) => (
+                {CATEGORIES?.map((cat, i) => (
                   <CategoryBadge
                     key={cat.key}
                     category={cat}

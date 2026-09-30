@@ -48,7 +48,7 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
 
   const removeExpense = async (id: string) => {
     await deleteExpenseFromStorage(id);
-    setExpenses((prev) => prev.filter((e) => e.id !== id));
+    setExpenses((prev) => prev?.filter((e) => e.id !== id));
   };
 
   const updateSettings = async (newSettings: UserSettings) => {
@@ -62,8 +62,8 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const now = new Date();
-  const currentMonthTotal = sumAmounts(expenses.filter((e) => isCurrentMonth(e.date, now)));
-  const todayTotal = sumAmounts(expenses.filter((e) => isToday(e.date, now)));
+  const currentMonthTotal = sumAmounts(expenses?.filter((e) => isCurrentMonth(e.date, now)) ?? []);
+  const todayTotal = sumAmounts(expenses?.filter((e) => isToday(e.date, now)) ?? []);
 
   return (
     <ExpenseContext.Provider

@@ -22,15 +22,15 @@ export const generateMonthlyReport = (
   year: number,
   month: number
 ): MonthlyReport => {
-  const monthExpenses = expenses.filter((e) => {
+  const monthExpenses = expenses?.filter((e) => {
     const d = new Date(e.date);
     return d.getFullYear() === year && d.getMonth() === month;
-  });
+  }) ?? [];
 
-  const totalExpense = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
+  const totalExpense = monthExpenses?.reduce((sum, e) => sum + e.amount, 0) ?? 0;
 
   const categoryBreakdown = {} as Record<ExpenseCategory, number>;
-  monthExpenses.forEach((e) => {
+  monthExpenses?.forEach((e) => {
     categoryBreakdown[e.category] = (categoryBreakdown[e.category] || 0) + e.amount;
   });
 
@@ -51,9 +51,9 @@ export const getDailyTotals = (
   const end = endOfMonth(new Date(year, month, 1));
   const days = eachDayOfInterval({ start, end });
 
-  return days.map((day) => {
-    const dayExpenses = expenses.filter((e) => isSameDay(new Date(e.date), day));
-    const total = dayExpenses.reduce((sum, e) => sum + e.amount, 0);
+  return days?.map((day) => {
+    const dayExpenses = expenses?.filter((e) => isSameDay(new Date(e.date), day)) ?? [];
+    const total = dayExpenses?.reduce((sum, e) => sum + e.amount, 0) ?? 0;
     return { date: format(day, 'dd'), total };
   });
 };
@@ -68,18 +68,18 @@ export const generateEmailBody = (
   );
 
   const categoryLines = Object.entries(report.categoryBreakdown)
-    .sort(([, a], [, b]) => b - a)
-    .map(
+    ?.sort(([, a], [, b]) => b - a)
+    ?.map(
       ([cat, amount]) =>
         `  • ${cat.charAt(0).toUpperCase() + cat.slice(1)}: ${formatCurrency(amount, currency)}`
     )
-    .join('\n');
+    ?.join('\n');
 
-  const topExpenses = [...report.expenses]
-    .sort((a, b) => b.amount - a.amount)
-    .slice(0, 5)
-    .map((e) => `  • ${e.title}: ${formatCurrency(e.amount, currency)} (${formatDate(e.date)})`)
-    .join('\n');
+  const topExpenses = [...(report.expenses ?? [])]
+    ?.sort((a, b) => b.amount - a.amount)
+    ?.slice(0, 5)
+    ?.map((e) => `  • ${e.title}: ${formatCurrency(e.amount, currency)} (${formatDate(e.date)})`)
+    ?.join('\n');
 
   const subject = `💰 Expense Report — ${monthLabel}`;
 

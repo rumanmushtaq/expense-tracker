@@ -16,7 +16,7 @@ export const MonthlyChart = ({ data, maxValue }: Props) => {
   return (
     <Animated.View entering={FadeInUp.delay(200).duration(600)} className="pt-2">
       <View className="flex-row items-end h-[140px] gap-0.5 pb-6">
-        {data.map((item, index) => {
+        {data?.map((item, index) => {
           const heightPercent = (item.total / chartMax) * 100;
           const isToday = index === new Date().getDate() - 1;
           const hasSpending = item.total > 0;

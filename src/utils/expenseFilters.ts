@@ -15,7 +15,7 @@ export function isToday(dateStr: string, now: Date): boolean {
 }
 
 export function sumAmounts(expenses: Expense[]): number {
-  return expenses.reduce((sum, e) => sum + e.amount, 0);
+  return expenses?.reduce((sum, e) => sum + e.amount, 0) ?? 0;
 }
 
 export function parsePositiveFloat(value: string): number | null {

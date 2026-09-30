@@ -15,27 +15,27 @@ export function useDashboard() {
     budgetPercent > 90 ? Colors.danger : budgetPercent > 70 ? Colors.warning : Colors.success;
 
   const currentMonthExpenses = useMemo(
-    () => expenses.filter((e) => isCurrentMonth(e.date, now)),
+    () => expenses?.filter((e) => isCurrentMonth(e.date, now)),
     [expenses]
   );
 
-  const recentExpenses = useMemo(() => currentMonthExpenses.slice(0, 5), [currentMonthExpenses]);
+  const recentExpenses = useMemo(() => currentMonthExpenses?.slice(0, 5), [currentMonthExpenses]);
 
   const dailyTotals = useMemo(
     () => getDailyTotals(currentMonthExpenses, now.getFullYear(), now.getMonth()),
     [currentMonthExpenses]
   );
 
-  const maxDaily = Math.max(...dailyTotals.map((d) => d.total), 1);
+  const maxDaily = Math.max(...(dailyTotals?.map((d) => d.total) ?? []), 1);
 
   const categoryTotals = useMemo(() => {
     const totals: Record<string, number> = {};
-    currentMonthExpenses.forEach((e) => {
+    currentMonthExpenses?.forEach((e) => {
       totals[e.category] = (totals[e.category] || 0) + e.amount;
     });
     return Object.entries(totals)
-      .map(([key, amount]) => ({ ...getCategoryInfo(key), amount }))
-      .sort((a, b) => b.amount - a.amount);
+      ?.map(([key, amount]) => ({ ...getCategoryInfo(key), amount }))
+      ?.sort((a, b) => b.amount - a.amount);
   }, [currentMonthExpenses]);
 
   return {

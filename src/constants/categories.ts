@@ -12,5 +12,5 @@ export const CATEGORIES: CategoryInfo[] = [
 ];
 
 export const getCategoryInfo = (key: string): CategoryInfo => {
-  return CATEGORIES.find((c) => c.key === key) || CATEGORIES[CATEGORIES.length - 1];
+  return CATEGORIES?.find((c) => c.key === key) || CATEGORIES[CATEGORIES.length - 1];
 };
