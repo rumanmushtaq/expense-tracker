@@ -1,16 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
-import { v4 as uuidv4 } from 'uuid';
+import { authApi } from '../api/auth';
 
 export interface AuthUser {
   id: string;
   name: string;
   email: string;
-}
-
-interface StoredUser extends AuthUser {
-  password: string;
 }
 
 interface AuthContextType {
@@ -22,14 +17,22 @@ interface AuthContextType {
   logout: () => Promise<void>;
   restoreSession: () => Promise<boolean>;
   setBiometricEnabled: (value: boolean) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  updateProfile: (name: string) => Promise<void>;
+  updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 }
 
-const TOKEN_KEY = 'auth_token';
-const USER_KEY = '@auth_user';
-const USERS_KEY = '@auth_users';
 const BIO_KEY = '@biometric_enabled';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+function toAuthUser(supabaseUser: any): AuthUser {
+  return {
+    id: supabaseUser.id,
+    name: supabaseUser.user_metadata?.name ?? supabaseUser.email?.split('@')[0] ?? 'User',
+    email: supabaseUser.email ?? '',
+  };
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -37,84 +40,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [biometricEnabled, setBioState] = useState<boolean>(false);
 
   useEffect(() => {
-    const init = async () => {
-      try {
-        const token = await SecureStore.getItemAsync(TOKEN_KEY);
-        if (token) {
-          const raw = await AsyncStorage.getItem(USER_KEY);
-          if (raw) setUser(JSON.parse(raw));
-        }
-        const bio = await AsyncStorage.getItem(BIO_KEY);
-        setBioState(bio === 'true');
-      } catch {
-        // silently ignore
-      } finally {
-        setLoading(false);
-      }
-    };
-    init();
+    SecureStore.getItemAsync(BIO_KEY).then((val) => setBioState(val === 'true'));
+
+    const { data: { subscription } } = authApi.onAuthStateChange((_event, session) => {
+      setUser(session?.user ? toAuthUser(session.user) : null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    const raw = await AsyncStorage.getItem(USERS_KEY);
-    const users: StoredUser[] = raw ? JSON.parse(raw) : [];
-    const found = users?.find(
-      (u) => u.email.toLowerCase() === email.trim().toLowerCase() && u.password === password,
-    );
-    if (!found) throw new Error('Invalid email or password.');
-    const { password: _, ...safeUser } = found;
-    await SecureStore.setItemAsync(TOKEN_KEY, uuidv4());
-    await AsyncStorage.setItem(USER_KEY, JSON.stringify(safeUser));
-    setUser(safeUser);
+    await authApi.signIn(email, password);
   }, []);
 
   const register = useCallback(async (name: string, email: string, password: string) => {
-    const raw = await AsyncStorage.getItem(USERS_KEY);
-    const users: StoredUser[] = raw ? JSON.parse(raw) : [];
-    if (users?.some((u) => u.email.toLowerCase() === email.trim().toLowerCase())) {
-      throw new Error('An account with this email already exists.');
-    }
-    const newUser: StoredUser = {
-      id: uuidv4(),
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      password,
-    };
-    await AsyncStorage.setItem(USERS_KEY, JSON.stringify([...users, newUser]));
-    const { password: _, ...safeUser } = newUser;
-    await SecureStore.setItemAsync(TOKEN_KEY, uuidv4());
-    await AsyncStorage.setItem(USER_KEY, JSON.stringify(safeUser));
-    setUser(safeUser);
+    await authApi.signUp(name, email, password);
   }, []);
 
   const logout = useCallback(async () => {
-    await SecureStore.deleteItemAsync(TOKEN_KEY);
-    await AsyncStorage.removeItem(USER_KEY);
-    setUser(null);
+    await authApi.signOut();
   }, []);
 
-  // Called after successful biometric — skips password, re-uses stored session
   const restoreSession = useCallback(async (): Promise<boolean> => {
-    try {
-      const token = await SecureStore.getItemAsync(TOKEN_KEY);
-      if (!token) return false;
-      const raw = await AsyncStorage.getItem(USER_KEY);
-      if (!raw) return false;
-      setUser(JSON.parse(raw));
-      return true;
-    } catch {
-      return false;
-    }
+    const session = await authApi.getSession();
+    if (!session?.user) return false;
+    setUser(toAuthUser(session.user));
+    return true;
   }, []);
 
   const setBiometricEnabled = useCallback(async (value: boolean) => {
-    await AsyncStorage.setItem(BIO_KEY, String(value));
+    await SecureStore.setItemAsync(BIO_KEY, String(value));
     setBioState(value);
   }, []);
 
+  const resetPassword = useCallback(async (email: string) => {
+    await authApi.resetPassword(email);
+  }, []);
+
+  const updateProfile = useCallback(async (name: string) => {
+    const updatedUser = await authApi.updateProfile(name);
+    if (updatedUser) setUser(toAuthUser(updatedUser));
+  }, []);
+
+  const updatePassword = useCallback(async (currentPassword: string, newPassword: string) => {
+    if (!user?.email) throw new Error('Not authenticated.');
+    await authApi.updatePassword(user.email, currentPassword, newPassword);
+  }, [user]);
+
   return (
     <AuthContext.Provider
-      value={{ user, loading, biometricEnabled, login, register, logout, restoreSession, setBiometricEnabled }}
+      value={{ user, loading, biometricEnabled, login, register, logout, restoreSession, setBiometricEnabled, resetPassword, updateProfile, updatePassword }}
     >
       {children}
     </AuthContext.Provider>

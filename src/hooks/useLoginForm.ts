@@ -2,10 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { Alert } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { valibotResolver } from '@hookform/resolvers/valibot';
-import * as SecureStore from 'expo-secure-store';
 import { useAuth } from '../context/AuthContext';
 import { LoginSchema, LoginFormValues } from '../schemas/authSchema';
 import { useBiometric } from './useBiometric';
+import { authApi } from '../api/auth';
 
 export function useLoginForm() {
   const { login, biometricEnabled, restoreSession } = useAuth();
@@ -18,12 +18,12 @@ export function useLoginForm() {
     defaultValues: { email: '', password: '' },
   });
 
-  // Auto-trigger biometric on mount if enabled and session exists
+  // Auto-trigger biometric on mount if a Supabase session already exists
   useEffect(() => {
     const tryBiometric = async () => {
       if (!biometricEnabled) return;
-      const token = await SecureStore.getItemAsync('auth_token');
-      if (!token) return;
+      const session = await authApi.getSession();
+      if (!session) return;
       const available = await biometric.isAvailable();
       if (!available) return;
       setBiometricAvailable(true);
@@ -56,12 +56,5 @@ export function useLoginForm() {
 
   const togglePassword = useCallback(() => setShowPassword((p) => !p), []);
 
-  return {
-    form,
-    handleLogin,
-    handleBiometricLogin,
-    showPassword,
-    togglePassword,
-    biometricAvailable,
-  };
+  return { form, handleLogin, handleBiometricLogin, showPassword, togglePassword, biometricAvailable };
 }

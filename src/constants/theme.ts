@@ -9,6 +9,12 @@ export const Colors = {
   accent: '#FF6B9D',
   accentLight: '#FF8FB5',
 
+  // Extended palette (used in categories, charts, badges)
+  purple: '#A78BFA',
+  pink: '#F472B6',
+  teal: '#2DD4BF',
+  slate: '#94A3B8',
+
   // Backgrounds
   background: '#0A0A1A',
   surface: '#13132B',
@@ -41,10 +47,11 @@ export const Colors = {
 
   // Gradients (as arrays for LinearGradient)
   gradientPrimary: ['#7C5CFC', '#9B85FF', '#B8A5FF'] as const,
-  gradientHeader: ['#13132B', '#0A0A1A'] as const,
-  gradientCard: ['rgba(124, 92, 252, 0.08)', 'rgba(124, 92, 252, 0.02)'] as const,
-  gradientDanger: ['#F87171', '#EF4444'] as const,
+  gradientHeader:  ['#13132B', '#0A0A1A'] as const,
+  gradientCard:    ['rgba(124, 92, 252, 0.08)', 'rgba(124, 92, 252, 0.02)'] as const,
+  gradientDanger:  ['#F87171', '#EF4444'] as const,
   gradientSuccess: ['#34D399', '#10B981'] as const,
+  gradientAuth:    ['#160d35', '#0d0d1f', '#0A0A1A'] as const,
 };
 
 export const Spacing = {

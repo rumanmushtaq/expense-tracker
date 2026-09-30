@@ -1,14 +1,16 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { Expense, UserSettings } from '../types';
-import {
-  getExpenses,
-  saveExpense as saveExpenseToStorage,
-  deleteExpense as deleteExpenseFromStorage,
-  getSettings,
-  saveSettings as saveSettingsToStorage,
-  defaultSettings,
-} from '../utils/storage';
+import { authApi } from '../api/auth';
+import { expensesApi } from '../api/expenses';
+import { settingsApi } from '../api/settings';
 import { isCurrentMonth, isToday, sumAmounts } from '../utils/expenseFilters';
+
+export const defaultSettings: UserSettings = {
+  emailAddress: '',
+  currency: 'PKR',
+  monthlyBudget: 50000,
+  emailNotifications: false,
+};
 
 interface ExpenseContextType {
   expenses: Expense[];
@@ -28,36 +30,59 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [settings, setSettings] = useState<UserSettings>(defaultSettings);
   const [loading, setLoading] = useState<boolean>(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
-  const loadData = useCallback(async () => {
+  useEffect(() => {
+    const { data: { subscription } } = authApi.onAuthStateChange((_event, session) => {
+      const id = session?.user?.id ?? null;
+      setUserId(id);
+      if (!id) {
+        setExpenses([]);
+        setSettings(defaultSettings);
+        setLoading(false);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const loadData = useCallback(async (uid: string) => {
     setLoading(true);
-    const [loadedExpenses, loadedSettings] = await Promise.all([getExpenses(), getSettings()]);
-    setExpenses(loadedExpenses);
-    setSettings(loadedSettings);
-    setLoading(false);
+    try {
+      const [loadedExpenses, loadedSettings] = await Promise.all([
+        expensesApi.getAll(uid),
+        settingsApi.get(uid),
+      ]);
+      setExpenses(loadedExpenses);
+      setSettings(loadedSettings);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    if (userId) loadData(userId);
+  }, [userId, loadData]);
 
   const addExpense = async (expense: Expense) => {
-    await saveExpenseToStorage(expense);
-    setExpenses((prev) => [expense, ...prev]);
+    if (!userId) return;
+    const created = await expensesApi.create(expense, userId);
+    setExpenses((prev) => [created, ...prev]);
   };
 
   const removeExpense = async (id: string) => {
-    await deleteExpenseFromStorage(id);
+    await expensesApi.remove(id);
     setExpenses((prev) => prev?.filter((e) => e.id !== id));
   };
 
   const updateSettings = async (newSettings: UserSettings) => {
-    await saveSettingsToStorage(newSettings);
+    if (!userId) return;
+    await settingsApi.save(newSettings, userId);
     setSettings(newSettings);
   };
 
   const refreshExpenses = async () => {
-    const loaded = await getExpenses();
+    if (!userId) return;
+    const loaded = await expensesApi.getAll(userId);
     setExpenses(loaded);
   };
 
@@ -67,17 +92,7 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <ExpenseContext.Provider
-      value={{
-        expenses,
-        settings,
-        loading,
-        addExpense,
-        removeExpense,
-        updateSettings,
-        refreshExpenses,
-        currentMonthTotal,
-        todayTotal,
-      }}
+      value={{ expenses, settings, loading, addExpense, removeExpense, updateSettings, refreshExpenses, currentMonthTotal, todayTotal }}
     >
       {children}
     </ExpenseContext.Provider>
@@ -85,9 +100,7 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
 };
 
 export const useExpenses = (): ExpenseContextType => {
-  const context = useContext(ExpenseContext);
-  if (!context) {
-    throw new Error('useExpenses must be used within an ExpenseProvider');
-  }
-  return context;
+  const ctx = useContext(ExpenseContext);
+  if (!ctx) throw new Error('useExpenses must be used within ExpenseProvider');
+  return ctx;
 };

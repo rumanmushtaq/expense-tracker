@@ -59,7 +59,7 @@ export default function TabsLayout() {
           headerTitle: 'New Expense',
           tabBarIcon: ({ color, focused }) => (
             <View style={[styles.addButton, focused && styles.addButtonActive]}>
-              <Ionicons name="add" size={26} color={focused ? '#fff' : color} />
+              <Ionicons name="add" size={26} color={focused ? Colors.text : color} />
             </View>
           ),
         }}

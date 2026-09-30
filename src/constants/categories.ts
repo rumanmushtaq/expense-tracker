@@ -1,14 +1,15 @@
 import { CategoryInfo } from '../types';
+import { Colors } from './theme';
 
 export const CATEGORIES: CategoryInfo[] = [
-  { key: 'food', label: 'Food & Drinks', icon: 'fast-food', color: '#F87171' },
-  { key: 'transport', label: 'Transport', icon: 'car', color: '#34D399' },
-  { key: 'shopping', label: 'Shopping', icon: 'bag-handle', color: '#60A5FA' },
-  { key: 'bills', label: 'Bills', icon: 'receipt', color: '#A78BFA' },
-  { key: 'entertainment', label: 'Fun', icon: 'game-controller', color: '#FBBF24' },
-  { key: 'health', label: 'Health', icon: 'heart', color: '#F472B6' },
-  { key: 'education', label: 'Education', icon: 'book', color: '#2DD4BF' },
-  { key: 'other', label: 'Other', icon: 'ellipsis-horizontal-circle', color: '#94A3B8' },
+  { key: 'food',          label: 'Food & Drinks', icon: 'fast-food',                  color: Colors.danger },
+  { key: 'transport',     label: 'Transport',     icon: 'car',                        color: Colors.success },
+  { key: 'shopping',      label: 'Shopping',      icon: 'bag-handle',                 color: Colors.info },
+  { key: 'bills',         label: 'Bills',         icon: 'receipt',                    color: Colors.purple },
+  { key: 'entertainment', label: 'Fun',           icon: 'game-controller',            color: Colors.warning },
+  { key: 'health',        label: 'Health',        icon: 'heart',                      color: Colors.pink },
+  { key: 'education',     label: 'Education',     icon: 'book',                       color: Colors.teal },
+  { key: 'other',         label: 'Other',         icon: 'ellipsis-horizontal-circle', color: Colors.slate },
 ];
 
 export const getCategoryInfo = (key: string): CategoryInfo => {

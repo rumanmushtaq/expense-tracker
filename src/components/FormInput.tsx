@@ -1,9 +1,7 @@
 import React from 'react';
-import { View, Text, TextInput, StyleSheet, TextInputProps } from 'react-native';
+import { View, Text, TextInput, TextInputProps, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../constants/theme';
-
-import { TouchableOpacity } from 'react-native';
 
 interface Props extends TextInputProps {
   icon?: string;
@@ -13,33 +11,90 @@ interface Props extends TextInputProps {
   onRightIconPress?: () => void;
 }
 
-export const FormInput = ({ icon, prefix, multiline, style, containerStyle, rightIcon, onRightIconPress, ...rest }: Props) => (
+export const FormInput = ({
+  icon,
+  prefix,
+  multiline,
+  style,
+  containerStyle,
+  rightIcon,
+  onRightIconPress,
+  ...rest
+}: Props) => (
   <View
-    className={`flex-row bg-surface border border-glass-border rounded-theme-lg overflow-hidden ${multiline ? 'items-start' : 'items-center'}`}
-    style={containerStyle}
+    style={[
+      styles.container,
+      multiline && styles.multiline,
+      containerStyle,
+    ]}
   >
     {icon && (
-      <Ionicons name={icon as any} size={16} color={Colors.textMuted} style={styles.icon} />
+      <Ionicons
+        name={icon as any}
+        size={18}
+        color={Colors.textMuted}
+        style={styles.iconLeft}
+      />
     )}
     {prefix && (
-      <Text className="text-muted text-md font-bold pl-4 tracking-[0.5px]">{prefix}</Text>
+      <Text style={styles.prefix}>{prefix}</Text>
     )}
     <TextInput
-      className={`flex-1 p-4 text-white text-md ${multiline ? 'h-20' : ''}`}
+      style={[styles.input, multiline && styles.multilineInput, style]}
       placeholderTextColor={Colors.textDim}
       multiline={multiline}
-      textAlignVertical={multiline ? 'top' : undefined}
-      style={style}
+      textAlignVertical={multiline ? 'top' : 'center'}
       {...rest}
     />
     {rightIcon && (
-      <TouchableOpacity onPress={onRightIconPress} className="px-4 py-4" activeOpacity={0.7}>
-        <Ionicons name={rightIcon as any} size={18} color={Colors.textMuted} />
+      <TouchableOpacity onPress={onRightIconPress} style={styles.iconRight} activeOpacity={0.7}>
+        <Ionicons name={rightIcon as any} size={19} color={Colors.textMuted} />
       </TouchableOpacity>
     )}
   </View>
 );
 
 const styles = StyleSheet.create({
-  icon: { paddingLeft: 16 },
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surfaceLight,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    borderRadius: 14,
+    overflow: 'hidden',
+    minHeight: 52,
+  },
+  multiline: {
+    alignItems: 'flex-start',
+    minHeight: 88,
+  },
+  iconLeft: {
+    paddingLeft: 14,
+    paddingRight: 2,
+  },
+  prefix: {
+    color: Colors.textMuted,
+    fontSize: 15,
+    fontWeight: '700',
+    paddingLeft: 14,
+    paddingRight: 4,
+    letterSpacing: 0.5,
+  },
+  input: {
+    flex: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 14,
+    color: Colors.text,
+    fontSize: 15,
+    lineHeight: 22,
+  },
+  multilineInput: {
+    paddingTop: 14,
+    height: 88,
+  },
+  iconRight: {
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+  },
 });
