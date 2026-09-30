@@ -4,13 +4,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
-import { ExpenseCard } from '../components/ExpenseCard';
-import { StatCard } from '../components/StatCard';
-import { MonthlyChart } from '../components/MonthlyChart';
-import { EmptyState } from '../components/EmptyState';
-import { Colors, Spacing, BorderRadius } from '../constants/theme';
-import { formatCurrency, getMonthLabel } from '../utils/helpers';
-import { useDashboard } from '../hooks/useDashboard';
+import { ExpenseCard } from '../../components/ExpenseCard';
+import { StatCard } from '../../components/StatCard';
+import { MonthlyChart } from '../../components/MonthlyChart';
+import { EmptyState } from '../../components/EmptyState';
+import { Colors, Spacing, BorderRadius } from '../../constants/theme';
+import { formatCurrency, getMonthLabel } from '../../utils/helpers';
+import { useDashboard } from '../../hooks/useDashboard';
 
 export default function DashboardScreen() {
   const router = useRouter();

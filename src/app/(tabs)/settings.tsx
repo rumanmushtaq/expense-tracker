@@ -2,16 +2,19 @@ import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Switch } from 'react-native';
 import { Controller } from 'react-hook-form';
 import Animated, { FadeInUp } from 'react-native-reanimated';
-import { Colors } from '../constants/theme';
-import { FormLabel } from '../components/FormLabel';
-import { FormInput } from '../components/FormInput';
-import { PrimaryButton } from '../components/PrimaryButton';
-import { CardSection } from '../components/CardSection';
-import { SectionHeader } from '../components/SectionHeader';
-import { useSettingsForm, CURRENCIES } from '../hooks/useSettingsForm';
+import { Ionicons } from '@expo/vector-icons';
+import { Colors } from '../../constants/theme';
+import { FormLabel } from '../../components/FormLabel';
+import { FormInput } from '../../components/FormInput';
+import { PrimaryButton } from '../../components/PrimaryButton';
+import { CardSection } from '../../components/CardSection';
+import { SectionHeader } from '../../components/SectionHeader';
+import { useSettingsForm, CURRENCIES } from '../../hooks/useSettingsForm';
+import { useAuth } from '../../context/AuthContext';
 
 export default function SettingsScreen() {
-  const { form, handleSave } = useSettingsForm();
+  const { form, handleSave, biometricEnabled, handleBiometricToggle, handleLogout } = useSettingsForm();
+  const { user } = useAuth();
   const { control, formState: { errors }, watch } = form;
   const currency = watch('currency');
 
@@ -22,13 +25,32 @@ export default function SettingsScreen() {
       showsVerticalScrollIndicator={false}
     >
 
-      {/* Email Section */}
+      {/* Account Section */}
       <Animated.View entering={FadeInUp.delay(0).duration(400)}>
         <CardSection>
-          <SectionHeader icon="mail" title="Email Reports" color={Colors.primary} />
+          <SectionHeader icon="person-circle" title="Account" color={Colors.primary} />
+          <View className="flex-row items-center gap-4">
+            <View
+              className="w-12 h-12 rounded-full justify-center items-center"
+              style={{ backgroundColor: Colors.primary + '20' }}
+            >
+              <Ionicons name="person" size={22} color={Colors.primary} />
+            </View>
+            <View className="flex-1">
+              <Text className="text-white text-md font-bold">{user?.name ?? 'User'}</Text>
+              <Text className="text-muted text-xs mt-0.5">{user?.email ?? ''}</Text>
+            </View>
+          </View>
+        </CardSection>
+      </Animated.View>
+
+      {/* Email Section */}
+      <Animated.View entering={FadeInUp.delay(50).duration(400)}>
+        <CardSection>
+          <SectionHeader icon="mail" title="Email Reports" color={Colors.info} />
 
           <View className="mb-4">
-            <FormLabel>Email Address</FormLabel>
+            <FormLabel>Report Email</FormLabel>
             <Controller
               control={control}
               name="emailAddress"
@@ -134,6 +156,25 @@ export default function SettingsScreen() {
         </CardSection>
       </Animated.View>
 
+      {/* Security Section */}
+      <Animated.View entering={FadeInUp.delay(150).duration(400)}>
+        <CardSection>
+          <SectionHeader icon="shield-checkmark" title="Security" color={Colors.success} />
+          <View className="flex-row justify-between items-center">
+            <View className="flex-1">
+              <Text className="text-white text-md font-semibold">Biometric Login</Text>
+              <Text className="text-muted text-xs mt-0.5">Face ID or fingerprint unlock</Text>
+            </View>
+            <Switch
+              value={biometricEnabled}
+              onValueChange={handleBiometricToggle}
+              trackColor={{ false: Colors.surfaceElevated, true: Colors.success + '50' }}
+              thumbColor={biometricEnabled ? Colors.success : Colors.textMuted}
+            />
+          </View>
+        </CardSection>
+      </Animated.View>
+
       {/* About Section */}
       <Animated.View entering={FadeInUp.delay(200).duration(400)}>
         <CardSection>
@@ -154,13 +195,26 @@ export default function SettingsScreen() {
       </Animated.View>
 
       {/* Save Button */}
-      <Animated.View entering={FadeInUp.delay(300).duration(400)}>
+      <Animated.View entering={FadeInUp.delay(250).duration(400)}>
         <PrimaryButton
           label={form.formState.isSubmitting ? 'Saving...' : 'Save Settings'}
           icon="checkmark-circle"
           onPress={handleSave}
           disabled={form.formState.isSubmitting}
         />
+      </Animated.View>
+
+      {/* Sign Out */}
+      <Animated.View entering={FadeInUp.delay(300).duration(400)} className="mt-3">
+        <TouchableOpacity
+          className="flex-row items-center justify-center py-3.5 rounded-theme-lg border gap-2"
+          style={{ borderColor: Colors.danger + '40', backgroundColor: Colors.danger + '08' }}
+          onPress={handleLogout}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="log-out-outline" size={18} color={Colors.danger} />
+          <Text className="text-danger text-md font-bold">Sign Out</Text>
+        </TouchableOpacity>
       </Animated.View>
 
       <View className="h-10" />

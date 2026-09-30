@@ -1,4 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
+import * as SecureStore from 'expo-secure-store';
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://api.expense-tracker.dev/v1';
 
@@ -13,12 +14,9 @@ export const axiosInstance = axios.create({
 
 // ─── Request interceptor ────────────────────────────────────────────────────
 axiosInstance.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    // Attach auth token if available (swap in SecureStore / AsyncStorage later)
-    const token: string | null = null;
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+  async (config: InternalAxiosRequestConfig) => {
+    const token = await SecureStore.getItemAsync('auth_token');
+    if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
   (error: AxiosError) => Promise.reject(error),

@@ -3,11 +3,11 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { ExpenseCard } from '../components/ExpenseCard';
-import { EmptyState } from '../components/EmptyState';
-import { Colors, BorderRadius, Spacing } from '../constants/theme';
-import { formatCurrency, getMonthLabel } from '../utils/helpers';
-import { useHistory } from '../hooks/useHistory';
+import { ExpenseCard } from '../../components/ExpenseCard';
+import { EmptyState } from '../../components/EmptyState';
+import { Colors, BorderRadius, Spacing } from '../../constants/theme';
+import { formatCurrency, getMonthLabel } from '../../utils/helpers';
+import { useHistory } from '../../hooks/useHistory';
 
 export default function HistoryScreen() {
   const {

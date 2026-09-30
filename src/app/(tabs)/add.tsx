@@ -12,13 +12,13 @@ import { Controller } from 'react-hook-form';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
-import { CategoryBadge } from '../components/CategoryBadge';
-import { FormLabel } from '../components/FormLabel';
-import { FormInput } from '../components/FormInput';
-import { PrimaryButton } from '../components/PrimaryButton';
-import { CATEGORIES, getCategoryInfo } from '../constants/categories';
-import { Colors, BorderRadius, Spacing } from '../constants/theme';
-import { useAddExpense } from '../hooks/useAddExpense';
+import { CategoryBadge } from '../../components/CategoryBadge';
+import { FormLabel } from '../../components/FormLabel';
+import { FormInput } from '../../components/FormInput';
+import { PrimaryButton } from '../../components/PrimaryButton';
+import { CATEGORIES, getCategoryInfo } from '../../constants/categories';
+import { Colors, BorderRadius, Spacing } from '../../constants/theme';
+import { useAddExpense } from '../../hooks/useAddExpense';
 
 export default function AddExpenseScreen() {
   const { form, handleSave, settings, saving } = useAddExpense();
