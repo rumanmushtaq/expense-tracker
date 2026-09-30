@@ -131,25 +131,33 @@ export default function DashboardScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.filtersRow}
+          contentContainerStyle={{ gap: 8, paddingRight: 4 }}
           className="mb-3"
         >
           {CHART_FILTERS.map((f) => (
             <TouchableOpacity
               key={f.key}
               onPress={() => setFilter(f.key)}
-              style={[styles.pill, filter === f.key && styles.pillActive]}
+              className={`px-3.5 py-1.5 rounded-full border ${
+                filter === f.key
+                  ? 'bg-primary border-primary'
+                  : 'bg-surface-light border-app-border'
+              }`}
             >
-              <Text style={[styles.pillLabel, filter === f.key && styles.pillLabelActive]}>
+              <Text
+                className={`text-xs font-semibold ${
+                  filter === f.key ? 'text-white font-bold' : 'text-dim'
+                }`}
+              >
                 {f.label}
               </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
 
-        <View className="bg-surface rounded-theme-xl p-4 border border-glass-border" style={styles.chartShadow}>
+        <View className="bg-surface rounded-theme-xl p-4 border border-glass-border">
           {chartLoading ? (
-            <View style={styles.chartLoader}>
+            <View className="h-[140px] justify-center items-center">
               <ActivityIndicator size="small" color={Colors.primary} />
             </View>
           ) : (
@@ -193,42 +201,5 @@ const styles = StyleSheet.create({
     borderColor: Colors.glassBorder,
     marginBottom: Spacing.md,
     overflow: 'hidden',
-  },
-  filtersRow: {
-    gap: 8,
-    paddingRight: 4,
-  },
-  pill: {
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 20,
-    backgroundColor: Colors.surfaceLight,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  pillActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
-  },
-  pillLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: Colors.textDim,
-  },
-  pillLabelActive: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-  },
-  chartShadow: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  chartLoader: {
-    height: 140,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });

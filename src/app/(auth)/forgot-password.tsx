@@ -8,7 +8,7 @@ import Animated, { FadeInDown, FadeInUp, SlideInUp } from 'react-native-reanimat
 import { useRouter } from 'expo-router';
 import { FormInput } from '../../components/FormInput';
 import { PrimaryButton } from '../../components/PrimaryButton';
-import { Colors, BorderRadius, Shadow } from '../../constants/theme';
+import { Colors, Shadow } from '../../constants/theme';
 import { useForgotPasswordForm } from '../../hooks/useForgotPasswordForm';
 
 export default function ForgotPasswordScreen() {
@@ -17,7 +17,7 @@ export default function ForgotPasswordScreen() {
   const { control, formState: { errors } } = form;
 
   return (
-    <View style={styles.root}>
+    <View className="flex-1 bg-background">
       <LinearGradient colors={Colors.gradientAuth} style={StyleSheet.absoluteFill} />
       <View style={styles.glowBlob} />
 
@@ -29,7 +29,7 @@ export default function ForgotPasswordScreen() {
         extraScrollHeight={20}
       >
         {/* Hero */}
-        <Animated.View entering={FadeInDown.duration(600)} style={styles.hero}>
+        <Animated.View entering={FadeInDown.duration(600)} className="items-center mb-9">
           <View style={styles.iconGlow} />
           <LinearGradient
             colors={[Colors.warning, Colors.warningDark]}
@@ -39,27 +39,32 @@ export default function ForgotPasswordScreen() {
           >
             <Ionicons name="lock-open-outline" size={42} color="#fff" />
           </LinearGradient>
-          <Text style={styles.heroTitle}>Forgot Password?</Text>
-          <Text style={styles.heroSub}>We'll send a reset link to your email</Text>
+          <Text className="text-white text-xxl font-black mb-1.5" style={styles.titleTracking}>
+            Forgot Password?
+          </Text>
+          <Text className="text-muted text-md font-medium">We'll send a reset link to your email</Text>
         </Animated.View>
 
         {/* Card */}
         <Animated.View entering={SlideInUp.delay(180).duration(500)} style={styles.card}>
           {sent ? (
-            /* Success state */
-            <View style={styles.successWrap}>
-              <View style={styles.successIcon}>
+            <View className="items-center py-3">
+              <View className="mb-4">
                 <Ionicons name="checkmark-circle" size={52} color={Colors.success} />
               </View>
-              <Text style={styles.successTitle}>Check Your Email</Text>
-              <Text style={styles.successBody}>
+              <Text className="text-white text-xl font-extrabold mb-2.5" style={styles.titleTracking}>
+                Check Your Email
+              </Text>
+              <Text className="text-muted text-sm text-center" style={styles.successBody}>
                 We've sent a password reset link to your email address. Tap the link to set a new password.
               </Text>
             </View>
           ) : (
             <>
-              <View style={styles.field}>
-                <Text style={styles.label}>Email Address</Text>
+              <View className="mb-[18px]">
+                <Text className="text-secondary text-sm font-semibold mb-2" style={styles.labelTracking}>
+                  Email Address
+                </Text>
                 <Controller
                   control={control}
                   name="email"
@@ -73,14 +78,16 @@ export default function ForgotPasswordScreen() {
                       keyboardType="email-address"
                       autoCapitalize="none"
                       autoComplete="email"
-                      containerStyle={errors.email && styles.inputError}
+                      containerStyle={errors.email ? styles.inputError : undefined}
                     />
                   )}
                 />
-                {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
+                {errors.email && (
+                  <Text className="text-danger text-xs font-semibold mt-1">{errors.email.message}</Text>
+                )}
               </View>
 
-              <View style={styles.btnWrap}>
+              <View className="mt-1.5">
                 <PrimaryButton
                   label="Send Reset Link"
                   icon="send-outline"
@@ -93,14 +100,14 @@ export default function ForgotPasswordScreen() {
         </Animated.View>
 
         {/* Footer */}
-        <Animated.View entering={FadeInUp.delay(400).duration(400)} style={styles.footer}>
+        <Animated.View entering={FadeInUp.delay(400).duration(400)} className="flex-row justify-center mt-7">
           <TouchableOpacity
             onPress={() => router.replace('/(auth)/login')}
-            style={styles.backBtn}
+            className="flex-row items-center gap-1.5"
             activeOpacity={0.7}
           >
             <Ionicons name="arrow-back" size={16} color={Colors.primary} />
-            <Text style={styles.backText}>Back to Sign In</Text>
+            <Text className="text-primary text-sm font-bold">Back to Sign In</Text>
           </TouchableOpacity>
         </Animated.View>
       </KeyboardAwareScrollView>
@@ -109,7 +116,6 @@ export default function ForgotPasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: Colors.background },
   glowBlob: {
     position: 'absolute',
     top: -80,
@@ -121,8 +127,6 @@ const styles = StyleSheet.create({
     transform: [{ scaleX: 1.6 }],
   },
   scroll: { padding: 24, paddingTop: 90, paddingBottom: 60 },
-
-  hero: { alignItems: 'center', marginBottom: 36 },
   iconGlow: {
     position: 'absolute',
     top: -10,
@@ -141,52 +145,16 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     ...Shadow.glow(Colors.warning),
   },
-  heroTitle: {
-    color: Colors.text,
-    fontSize: 30,
-    fontWeight: '900',
-    letterSpacing: -0.8,
-    marginBottom: 6,
-  },
-  heroSub: { color: Colors.textMuted, fontSize: 15, fontWeight: '500' },
-
+  titleTracking: { letterSpacing: -0.8 },
+  labelTracking: { letterSpacing: 0.3 },
   card: {
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xxl,
+    borderRadius: 24,
     padding: 24,
     borderWidth: 1,
     borderColor: Colors.border,
     ...Shadow.lg,
   },
-  field: { marginBottom: 18 },
-  label: {
-    color: Colors.textSecondary,
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 8,
-    letterSpacing: 0.3,
-  },
   inputError: { borderColor: Colors.danger + '90' },
-  errorText: { color: Colors.danger, fontSize: 12, fontWeight: '600', marginTop: 5 },
-  btnWrap: { marginTop: 6 },
-
-  successWrap: { alignItems: 'center', paddingVertical: 12 },
-  successIcon: { marginBottom: 16 },
-  successTitle: {
-    color: Colors.text,
-    fontSize: 22,
-    fontWeight: '800',
-    marginBottom: 10,
-    letterSpacing: -0.4,
-  },
-  successBody: {
-    color: Colors.textMuted,
-    fontSize: 14,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-
-  footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 28 },
-  backBtn: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  backText: { color: Colors.primary, fontSize: 14, fontWeight: '700' },
+  successBody: { lineHeight: 22 },
 });

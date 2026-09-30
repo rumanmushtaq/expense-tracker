@@ -8,23 +8,17 @@ import Animated, { FadeInDown, FadeInUp, SlideInUp } from 'react-native-reanimat
 import { useRouter } from 'expo-router';
 import { FormInput } from '../../components/FormInput';
 import { PrimaryButton } from '../../components/PrimaryButton';
-import { Colors, BorderRadius, Shadow } from '../../constants/theme';
+import { Colors, Shadow } from '../../constants/theme';
 import { useResetPasswordForm } from '../../hooks/useResetPasswordForm';
 
 export default function ResetPasswordScreen() {
   const router = useRouter();
-  const {
-    form,
-    handleReset,
-    showPassword,
-    showConfirm,
-    togglePassword,
-    toggleConfirm,
-  } = useResetPasswordForm();
+  const { form, handleReset, showPassword, showConfirm, togglePassword, toggleConfirm } =
+    useResetPasswordForm();
   const { control, formState: { errors } } = form;
 
   return (
-    <View style={styles.root}>
+    <View className="flex-1 bg-background">
       <LinearGradient colors={Colors.gradientAuth} style={StyleSheet.absoluteFill} />
       <View style={styles.glowBlob} />
 
@@ -36,7 +30,7 @@ export default function ResetPasswordScreen() {
         extraScrollHeight={20}
       >
         {/* Hero */}
-        <Animated.View entering={FadeInDown.duration(600)} style={styles.hero}>
+        <Animated.View entering={FadeInDown.duration(600)} className="items-center mb-9">
           <View style={styles.iconGlow} />
           <LinearGradient
             colors={[Colors.success, Colors.successDark]}
@@ -46,16 +40,22 @@ export default function ResetPasswordScreen() {
           >
             <Ionicons name="shield-checkmark" size={42} color="#fff" />
           </LinearGradient>
-          <Text style={styles.heroTitle}>Set New Password</Text>
-          <Text style={styles.heroSub}>Choose a strong password for your account</Text>
+          <Text className="text-white text-xxl font-black mb-1.5" style={styles.titleTracking}>
+            Set New Password
+          </Text>
+          <Text className="text-muted text-md font-medium">
+            Choose a strong password for your account
+          </Text>
         </Animated.View>
 
         {/* Card */}
         <Animated.View entering={SlideInUp.delay(180).duration(500)} style={styles.card}>
 
           {/* New Password */}
-          <View style={styles.field}>
-            <Text style={styles.label}>New Password</Text>
+          <View className="mb-[18px]">
+            <Text className="text-secondary text-sm font-semibold mb-2" style={styles.labelTracking}>
+              New Password
+            </Text>
             <Controller
               control={control}
               name="password"
@@ -69,16 +69,20 @@ export default function ResetPasswordScreen() {
                   secureTextEntry={!showPassword}
                   rightIcon={showPassword ? 'eye-off-outline' : 'eye-outline'}
                   onRightIconPress={togglePassword}
-                  containerStyle={errors.password && styles.inputError}
+                  containerStyle={errors.password ? styles.inputError : undefined}
                 />
               )}
             />
-            {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
+            {errors.password && (
+              <Text className="text-danger text-xs font-semibold mt-1">{errors.password.message}</Text>
+            )}
           </View>
 
           {/* Confirm Password */}
-          <View style={styles.field}>
-            <Text style={styles.label}>Confirm Password</Text>
+          <View className="mb-[18px]">
+            <Text className="text-secondary text-sm font-semibold mb-2" style={styles.labelTracking}>
+              Confirm Password
+            </Text>
             <Controller
               control={control}
               name="confirmPassword"
@@ -92,16 +96,16 @@ export default function ResetPasswordScreen() {
                   secureTextEntry={!showConfirm}
                   rightIcon={showConfirm ? 'eye-off-outline' : 'eye-outline'}
                   onRightIconPress={toggleConfirm}
-                  containerStyle={errors.confirmPassword && styles.inputError}
+                  containerStyle={errors.confirmPassword ? styles.inputError : undefined}
                 />
               )}
             />
             {errors.confirmPassword && (
-              <Text style={styles.errorText}>{errors.confirmPassword.message}</Text>
+              <Text className="text-danger text-xs font-semibold mt-1">{errors.confirmPassword.message}</Text>
             )}
           </View>
 
-          <View style={styles.btnWrap}>
+          <View className="mt-1.5">
             <PrimaryButton
               label="Set New Password"
               icon="checkmark-circle-outline"
@@ -112,13 +116,13 @@ export default function ResetPasswordScreen() {
         </Animated.View>
 
         {/* Footer */}
-        <Animated.View entering={FadeInUp.delay(400).duration(400)} style={styles.footer}>
-          <Text style={styles.footerText}>Remember your password?</Text>
-          <TouchableOpacity
-            onPress={() => router.replace('/(auth)/login')}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.footerLink}> Sign In</Text>
+        <Animated.View
+          entering={FadeInUp.delay(400).duration(400)}
+          className="flex-row justify-center mt-7 items-center"
+        >
+          <Text className="text-muted text-sm">Remember your password?</Text>
+          <TouchableOpacity onPress={() => router.replace('/(auth)/login')} activeOpacity={0.7}>
+            <Text className="text-primary text-sm font-black"> Sign In</Text>
           </TouchableOpacity>
         </Animated.View>
       </KeyboardAwareScrollView>
@@ -127,7 +131,6 @@ export default function ResetPasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: Colors.background },
   glowBlob: {
     position: 'absolute',
     top: -80,
@@ -139,8 +142,6 @@ const styles = StyleSheet.create({
     transform: [{ scaleX: 1.6 }],
   },
   scroll: { padding: 24, paddingTop: 90, paddingBottom: 60 },
-
-  hero: { alignItems: 'center', marginBottom: 36 },
   iconGlow: {
     position: 'absolute',
     top: -10,
@@ -159,41 +160,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     ...Shadow.glow(Colors.success),
   },
-  heroTitle: {
-    color: Colors.text,
-    fontSize: 30,
-    fontWeight: '900',
-    letterSpacing: -0.8,
-    marginBottom: 6,
-  },
-  heroSub: { color: Colors.textMuted, fontSize: 15, fontWeight: '500' },
-
+  titleTracking: { letterSpacing: -0.8 },
+  labelTracking: { letterSpacing: 0.3 },
   card: {
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xxl,
+    borderRadius: 24,
     padding: 24,
     borderWidth: 1,
     borderColor: Colors.border,
     ...Shadow.lg,
   },
-  field: { marginBottom: 18 },
-  label: {
-    color: Colors.textSecondary,
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 8,
-    letterSpacing: 0.3,
-  },
   inputError: { borderColor: Colors.danger + '90' },
-  errorText: { color: Colors.danger, fontSize: 12, fontWeight: '600', marginTop: 5 },
-  btnWrap: { marginTop: 6 },
-
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 28,
-    alignItems: 'center',
-  },
-  footerText: { color: Colors.textMuted, fontSize: 14 },
-  footerLink: { color: Colors.primary, fontSize: 14, fontWeight: '800' },
 });
