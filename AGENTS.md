@@ -39,3 +39,29 @@ Docs: https://docs.expo.dev/eas/index.md
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
+
+## Coding Standards (mandatory)
+
+1. **Typed useState** — Every `useState` must include a type: `useState<string>('')`, never `useState('')`.
+2. **No business logic in TSX** — Data fetching, transformations, and side effects belong in `use*.ts` hooks. TSX files contain only JSX + hook calls.
+3. **DRY** — Extract repeated logic into shared hooks, utilities, or constants.
+4. **Optional chaining on arrays** — Always write `array?.map(...)`, `array?.filter(...)`, etc.
+
+## Screen Component Architecture
+
+Every screen file must only contain: hook calls, layout wrapper, and component composition — no inline form fields, no StyleSheet for form UI.
+
+**Auth screens** use two components:
+- `AuthHero` (`src/components/AuthHero.tsx`) — animated icon/title header, accepts `icon`, `gradientColors`, `glowColor`, `title`, `subtitle`
+- A `*FormCard` component — card containing all form fields and buttons
+
+**Tab screens** (add, settings) extract all form UI into a `*FormCard` component in `src/components/`.
+
+**StyleSheet** is kept only for: `Shadow` spreads, `LinearGradient` `style` prop, dynamic color opacities (`Colors.primary + '22'`), and absolute/transform positioning. Everything else uses NativeWind `className`.
+
+**Component files:**
+- `src/components/AuthHero.tsx` — shared auth hero
+- `src/components/LoginFormCard.tsx` — login form
+- `src/components/RegisterFormCard.tsx` — register form
+- `src/components/AddExpenseFormCard.tsx` — add expense form
+- `src/components/ConfirmModal.tsx` — themed confirmation modal (replaces all `Alert.alert`)

@@ -3,24 +3,37 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { Colors, Shadow } from '../constants/theme';
+import { Shadow } from '../constants/theme';
 
-export function LoginHero() {
+interface AuthHeroProps {
+  icon: string;
+  gradientColors: readonly [string, string];
+  glowColor: string;
+  title: string;
+  subtitle: string;
+}
+
+export function AuthHero({ icon, gradientColors, glowColor, title, subtitle }: AuthHeroProps) {
   return (
     <Animated.View entering={FadeInDown.duration(600)} className="items-center mb-9">
-      <View style={styles.iconGlow} />
+      <View
+        style={[
+          styles.iconGlow,
+          { backgroundColor: glowColor + '28' },
+        ]}
+      />
       <LinearGradient
-        colors={[Colors.primaryLight, Colors.primaryDark]}
+        colors={gradientColors}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.iconWrap}
+        style={[styles.iconWrap, Shadow.glow(glowColor)]}
       >
-        <Ionicons name="wallet" size={42} color="#fff" />
+        <Ionicons name={icon as any} size={42} color="#fff" />
       </LinearGradient>
-      <Text className="text-white text-xxl font-black mb-1.5" style={styles.heroTitle}>
-        Welcome Back
+      <Text className="text-white text-xxl font-black mb-1.5" style={styles.titleTracking}>
+        {title}
       </Text>
-      <Text className="text-muted text-md font-medium">Sign in to your account</Text>
+      <Text className="text-muted text-md font-medium">{subtitle}</Text>
     </Animated.View>
   );
 }
@@ -32,7 +45,6 @@ const styles = StyleSheet.create({
     width: 130,
     height: 130,
     borderRadius: 999,
-    backgroundColor: Colors.primary + '28',
     transform: [{ scale: 1.6 }],
   },
   iconWrap: {
@@ -42,9 +54,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
-    ...Shadow.glow(Colors.primary),
   },
-  heroTitle: {
+  titleTracking: {
     letterSpacing: -0.8,
   },
 });

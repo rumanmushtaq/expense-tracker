@@ -4,7 +4,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
-import { LoginHero } from '../../components/LoginHero';
+import { AuthHero } from '../../components/AuthHero';
 import { LoginFormCard } from '../../components/LoginFormCard';
 import { Colors } from '../../constants/theme';
 import { useLoginForm } from '../../hooks/useLoginForm';
@@ -29,7 +29,13 @@ export default function LoginScreen() {
         enableOnAndroid
         extraScrollHeight={20}
       >
-        <LoginHero />
+        <AuthHero
+          icon="wallet"
+          gradientColors={[Colors.primaryLight, Colors.primaryDark]}
+          glowColor={Colors.primary}
+          title="Welcome Back"
+          subtitle="Sign in to your account"
+        />
 
         <LoginFormCard
           control={control}
@@ -44,7 +50,10 @@ export default function LoginScreen() {
           onForgotPassword={() => router.push('/(auth)/forgot-password' as any)}
         />
 
-        <Animated.View entering={FadeInUp.delay(400).duration(400)} className="flex-row justify-center mt-7 items-center">
+        <Animated.View
+          entering={FadeInUp.delay(400).duration(400)}
+          className="flex-row justify-center mt-7 items-center"
+        >
           <Text className="text-muted text-sm">Don't have an account?</Text>
           <TouchableOpacity onPress={() => router.push('/(auth)/register')} activeOpacity={0.7}>
             <Text className="text-primary text-sm font-black"> Create Account</Text>
