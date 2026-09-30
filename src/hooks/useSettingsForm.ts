@@ -34,11 +34,18 @@ export function useSettingsForm() {
   }, [settings]);
 
   const handleSave = form.handleSubmit(async (data) => {
-    await updateSettings({
+    const saved = {
       emailAddress: data.emailAddress.trim(),
       currency: data.currency,
       monthlyBudget: parseFloat(data.monthlyBudget),
       emailNotifications: data.emailNotifications,
+    };
+    await updateSettings(saved);
+    form.reset({
+      emailAddress: saved.emailAddress,
+      monthlyBudget: String(saved.monthlyBudget),
+      currency: saved.currency as SettingsFormValues['currency'],
+      emailNotifications: saved.emailNotifications,
     });
     Alert.alert('Saved! ✅', 'Your settings have been updated.');
   });

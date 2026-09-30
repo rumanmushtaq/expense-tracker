@@ -22,7 +22,7 @@ interface AuthContextType {
   updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 }
 
-const BIO_KEY = '@biometric_enabled';
+const BIO_KEY = 'biometric_enabled';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 

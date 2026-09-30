@@ -36,6 +36,7 @@ export function useLoginForm() {
   const handleLogin = form.handleSubmit(async (data) => {
     try {
       await login(data.email, data.password);
+      form.reset();
     } catch (e: any) {
       Alert.alert('Login Failed', e.message ?? 'Something went wrong.');
     }

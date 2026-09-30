@@ -24,6 +24,7 @@ export function useRegisterForm() {
     }
     try {
       await register(data.name, data.email, data.password);
+      form.reset();
       // Offer biometric after successful registration if available
       const available = await biometric.isAvailable();
       if (available) {

@@ -2,12 +2,10 @@ import React from 'react';
 import {
   View,
   Text,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Controller } from 'react-hook-form';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -35,12 +33,13 @@ export default function LoginScreen() {
       <LinearGradient colors={Colors.gradientAuth} style={StyleSheet.absoluteFill} />
       <View style={styles.glowBlob} />
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView
-          contentContainerStyle={styles.scroll}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        enableOnAndroid
+        extraScrollHeight={20}
+      >
           {/* ── Hero ── */}
           <Animated.View entering={FadeInDown.duration(600)} style={styles.hero}>
             <View style={styles.iconGlow} />
@@ -117,10 +116,10 @@ export default function LoginScreen() {
             {/* Sign In */}
             <View style={styles.btnWrap}>
               <PrimaryButton
-                label={form.formState.isSubmitting ? 'Signing In...' : 'Sign In'}
+                label="Sign In"
                 icon="arrow-forward-circle"
                 onPress={handleLogin}
-                disabled={form.formState.isSubmitting}
+                loading={form.formState.isSubmitting}
               />
             </View>
 
@@ -162,8 +161,7 @@ export default function LoginScreen() {
               <Text style={styles.footerLink}> Create Account</Text>
             </TouchableOpacity>
           </Animated.View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
     </View>
   );
 }

@@ -2,12 +2,10 @@ import React from 'react';
 import {
   View,
   Text,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Controller } from 'react-hook-form';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -32,12 +30,13 @@ export default function RegisterScreen() {
       <LinearGradient colors={Colors.gradientAuth} style={StyleSheet.absoluteFill} />
       <View style={styles.glowBlob} />
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView
-          contentContainerStyle={styles.scroll}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        enableOnAndroid
+        extraScrollHeight={20}
+      >
           {/* ── Header ── */}
           <Animated.View entering={FadeInDown.duration(500)} style={styles.header}>
             <View style={styles.iconGlow} />
@@ -154,10 +153,10 @@ export default function RegisterScreen() {
             {/* Create Account Button */}
             <View style={styles.btnWrap}>
               <PrimaryButton
-                label={form.formState.isSubmitting ? 'Creating Account...' : 'Create Account'}
+                label="Create Account"
                 icon="checkmark-circle"
                 onPress={handleRegister}
-                disabled={form.formState.isSubmitting}
+                loading={form.formState.isSubmitting}
               />
             </View>
           </Animated.View>
@@ -169,8 +168,7 @@ export default function RegisterScreen() {
               <Text style={styles.footerLink}> Sign In</Text>
             </TouchableOpacity>
           </Animated.View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
     </View>
   );
 }
@@ -193,7 +191,7 @@ const styles = StyleSheet.create({
   scroll: {
     padding: 24,
     paddingTop: 70,
-    paddingBottom: 60,
+    paddingBottom: 120,
   },
 
   // Header
