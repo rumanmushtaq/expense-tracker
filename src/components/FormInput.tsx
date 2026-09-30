@@ -1,15 +1,8 @@
 import React from 'react';
-import { View, Text, TextInput, TextInputProps, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../constants/theme';
-
-interface Props extends TextInputProps {
-  icon?: string;
-  prefix?: string;
-  containerStyle?: object;
-  rightIcon?: string;
-  onRightIconPress?: () => void;
-}
+import type { Props } from '@/types/FormInput';
 
 export const FormInput = ({
   icon,

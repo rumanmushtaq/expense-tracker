@@ -3,14 +3,7 @@ import { Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Colors } from '../constants/theme';
-
-interface AuthFooterLinkProps {
-  prompt?: string;
-  linkText: string;
-  onPress: () => void;
-  delay?: number;
-  icon?: string;
-}
+import type { AuthFooterLinkProps } from '@/types/AuthFooterLink';
 
 export function AuthFooterLink({ prompt, linkText, onPress, delay = 400, icon }: AuthFooterLinkProps) {
   return (

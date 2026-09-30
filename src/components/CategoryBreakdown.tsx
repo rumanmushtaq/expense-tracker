@@ -2,19 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { formatCurrency } from '../utils/helpers';
-
-interface CategoryTotal {
-  key: string;
-  label: string;
-  color: string;
-  amount: number;
-}
-
-interface CategoryBreakdownProps {
-  categoryTotals: CategoryTotal[];
-  total: number;
-  currency: string;
-}
+import type { CategoryTotal, CategoryBreakdownProps } from '@/types/CategoryBreakdown';
 
 export function CategoryBreakdown({ categoryTotals, total, currency }: CategoryBreakdownProps) {
   if (categoryTotals.length === 0) return null;

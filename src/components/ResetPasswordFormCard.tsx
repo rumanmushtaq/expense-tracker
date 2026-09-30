@@ -1,22 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Controller, Control, FieldErrors } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
 import Animated, { SlideInUp } from 'react-native-reanimated';
 import { FormInput } from './FormInput';
 import { PrimaryButton } from './PrimaryButton';
 import { Colors, Shadow } from '../constants/theme';
-import { ResetPasswordFormValues } from '../schemas/authSchema';
-
-interface ResetPasswordFormCardProps {
-  control: Control<ResetPasswordFormValues>;
-  errors: FieldErrors<ResetPasswordFormValues>;
-  showPassword: boolean;
-  togglePassword: () => void;
-  showConfirm: boolean;
-  toggleConfirm: () => void;
-  handleReset: () => void;
-  isSubmitting: boolean;
-}
+import type { ResetPasswordFormCardProps } from '@/types/ResetPasswordFormCard';
 
 export function ResetPasswordFormCard({
   control,

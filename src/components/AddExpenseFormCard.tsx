@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
-import { Controller, Control, FieldErrors } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
@@ -10,16 +10,7 @@ import { FormInput } from './FormInput';
 import { PrimaryButton } from './PrimaryButton';
 import { CATEGORIES, getCategoryInfo } from '../constants/categories';
 import { Colors } from '../constants/theme';
-import { AddExpenseFormValues, AddExpenseOutput } from '../schemas/expenseSchema';
-
-interface AddExpenseFormCardProps {
-  control: Control<AddExpenseFormValues, unknown, AddExpenseOutput>;
-  errors: FieldErrors<AddExpenseFormValues>;
-  currency: string;
-  selectedCategory: string;
-  handleSave: () => void;
-  saving: boolean;
-}
+import type { AddExpenseFormCardProps } from '@/types/AddExpenseFormCard';
 
 export function AddExpenseFormCard({
   control,

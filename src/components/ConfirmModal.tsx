@@ -5,19 +5,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Colors, BorderRadius } from '../constants/theme';
-
-interface ConfirmModalProps {
-  visible: boolean;
-  title: string;
-  message: string;
-  icon?: string;
-  iconColor?: string;
-  confirmLabel?: string;
-  cancelLabel?: string;
-  confirmColor?: string;
-  onConfirm: () => void;
-  onDismiss: () => void;
-}
+import type { ConfirmModalProps } from '@/types/ConfirmModal';
 
 export const ConfirmModal = ({
   visible,

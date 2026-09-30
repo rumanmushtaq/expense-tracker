@@ -4,14 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { ExpenseCard } from './ExpenseCard';
 import { EmptyState } from './EmptyState';
 import { Colors } from '../constants/theme';
-import type { Expense } from '../types';
-
-interface RecentExpensesProps {
-  expenses: Expense[];
-  currency: string;
-  onDelete: (id: string) => void;
-  onSeeAll: () => void;
-}
+import type { RecentExpensesProps } from '@/types/RecentExpenses';
 
 export function RecentExpenses({ expenses, currency, onDelete, onSeeAll }: RecentExpensesProps) {
   return (

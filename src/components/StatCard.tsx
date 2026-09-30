@@ -4,15 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Shadow } from '../constants/theme';
-
-interface Props {
-  title: string;
-  value: string;
-  icon: string;
-  color: string;
-  subtitle?: string;
-  index?: number;
-}
+import type { Props } from '@/types/StatCard';
 
 export const StatCard = ({ title, value, icon, color, subtitle, index = 0 }: Props) => (
   <Animated.View

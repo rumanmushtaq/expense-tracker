@@ -1,20 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Controller, Control, FieldErrors } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { SlideInUp } from 'react-native-reanimated';
 import { FormInput } from './FormInput';
 import { PrimaryButton } from './PrimaryButton';
 import { Colors, Shadow } from '../constants/theme';
-import { ForgotPasswordFormValues } from '../schemas/authSchema';
-
-interface ForgotPasswordFormCardProps {
-  control: Control<ForgotPasswordFormValues>;
-  errors: FieldErrors<ForgotPasswordFormValues>;
-  sent: boolean;
-  handleSend: () => void;
-  isSubmitting: boolean;
-}
+import type { ForgotPasswordFormCardProps } from '@/types/ForgotPasswordFormCard';
 
 export function ForgotPasswordFormCard({
   control,

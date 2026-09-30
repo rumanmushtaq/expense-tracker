@@ -3,12 +3,7 @@ import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Colors } from '../constants/theme';
-
-interface Props {
-  icon: string;
-  title: string;
-  subtitle?: string;
-}
+import type { Props } from '@/types/EmptyState';
 
 export const EmptyState = ({ icon, title, subtitle }: Props) => (
   <Animated.View entering={FadeInUp.duration(500)} className="items-center justify-center py-12">

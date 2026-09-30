@@ -3,15 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Colors, BorderRadius } from '../constants/theme';
-
-interface DashboardHeroCardProps {
-  monthLabel: string;
-  total: string;
-  budgetPercent: number;
-  budgetColor: string;
-  budgetLeft: number;
-  budgetLeftLabel: string;
-}
+import type { DashboardHeroCardProps } from '@/types/DashboardHeroCard';
 
 export function DashboardHeroCard({
   monthLabel,

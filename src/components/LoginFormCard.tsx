@@ -1,26 +1,13 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Controller, Control, FieldErrors } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { SlideInUp } from 'react-native-reanimated';
 import { FormInput } from './FormInput';
 import { PrimaryButton } from './PrimaryButton';
 import { Colors, Shadow } from '../constants/theme';
-import { LoginFormValues } from '../schemas/authSchema';
-
-interface LoginFormCardProps {
-  control: Control<LoginFormValues>;
-  errors: FieldErrors<LoginFormValues>;
-  showPassword: boolean;
-  togglePassword: () => void;
-  handleLogin: () => void;
-  isSubmitting: boolean;
-  biometricEnabled: boolean;
-  biometricAvailable: boolean;
-  handleBiometricLogin: () => void;
-  onForgotPassword: () => void;
-}
+import type { LoginFormCardProps } from '@/types/LoginFormCard';
 
 export function LoginFormCard({
   control,

@@ -1,10 +1,6 @@
-import React, { ReactNode } from 'react';
-import { View, ViewStyle } from 'react-native';
-
-interface Props {
-  children: ReactNode;
-  style?: ViewStyle;
-}
+import React from 'react';
+import { View } from 'react-native';
+import type { Props } from '@/types/CardSection';
 
 export const CardSection = ({ children, style }: Props) => (
   <View

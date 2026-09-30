@@ -1,12 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
-interface Props {
-  icon: string;
-  title: string;
-  color: string;
-}
+import type { Props } from '@/types/SectionHeader';
 
 export const SectionHeader = ({ icon, title, color }: Props) => (
   <View className="flex-row items-center gap-2.5 mb-6">

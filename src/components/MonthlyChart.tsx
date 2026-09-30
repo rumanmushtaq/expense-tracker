@@ -3,12 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Colors } from '../constants/theme';
-import type { ChartDataPoint } from '../types';
-
-interface Props {
-  data: ChartDataPoint[];
-  maxValue: number;
-}
+import type { Props } from '@/types/MonthlyChart';
 
 export const MonthlyChart = ({ data, maxValue }: Props) => {
   const chartMax = maxValue || 1;

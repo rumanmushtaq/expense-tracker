@@ -2,15 +2,8 @@ import React from 'react';
 import { Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { CategoryInfo } from '../types';
 import { Colors, Shadow } from '../constants/theme';
-
-interface Props {
-  category: CategoryInfo;
-  selected?: boolean;
-  onPress?: () => void;
-  index?: number;
-}
+import type { Props } from '@/types/CategoryBadge';
 
 export const CategoryBadge = ({ category, selected, onPress, index = 0 }: Props) => (
   <Animated.View entering={FadeIn.delay(index * 40).duration(300)}>

@@ -2,7 +2,8 @@ import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { MonthlyChart } from './MonthlyChart';
 import { Colors } from '../constants/theme';
-import type { ChartFilter, ChartDataPoint } from '../types';
+import type { ChartFilter } from '../types';
+import type { DailySpendingChartProps } from '@/types/DailySpendingChart';
 
 const CHART_FILTERS: { key: ChartFilter; label: string }[] = [
   { key: 'week', label: 'This Week' },
@@ -10,14 +11,6 @@ const CHART_FILTERS: { key: ChartFilter; label: string }[] = [
   { key: '7days', label: '7 Days' },
   { key: '30days', label: '30 Days' },
 ];
-
-interface DailySpendingChartProps {
-  filter: ChartFilter;
-  setFilter: (filter: ChartFilter) => void;
-  chartData: ChartDataPoint[];
-  maxValue: number;
-  loading: boolean;
-}
 
 export function DailySpendingChart({
   filter,

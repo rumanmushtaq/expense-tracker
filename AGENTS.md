@@ -46,6 +46,7 @@ Docs: https://docs.expo.dev/eas/index.md
 2. **No business logic in TSX** — Data fetching, transformations, and side effects belong in `use*.ts` hooks. TSX files contain only JSX + hook calls.
 3. **DRY** — Extract repeated logic into shared hooks, utilities, or constants.
 4. **Optional chaining on arrays** — Always write `array?.map(...)`, `array?.filter(...)`, etc.
+5. **No types in TSX** — Never define `interface` or `type` inside a `.tsx` file. Move every declaration to `src/types/<ComponentName>.ts` and import it with `import type { ... } from '@/types/<ComponentName>'`.
 
 ## Screen Component Architecture
 

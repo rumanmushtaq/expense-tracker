@@ -2,17 +2,10 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInRight, FadeOutLeft, Layout } from 'react-native-reanimated';
-import { Expense } from '../types';
 import { getCategoryInfo } from '../constants/categories';
 import { Colors, Shadow } from '../constants/theme';
 import { formatCurrency, formatDateShort } from '../utils/helpers';
-
-interface Props {
-  expense: Expense;
-  currency: string;
-  onDelete?: (id: string) => void;
-  index?: number;
-}
+import type { Props } from '@/types/ExpenseCard';
 
 export const ExpenseCard = ({ expense, currency, onDelete, index = 0 }: Props) => {
   const category = getCategoryInfo(expense.category);

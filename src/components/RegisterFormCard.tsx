@@ -1,22 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Controller, Control, FieldErrors } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
 import Animated, { SlideInUp } from 'react-native-reanimated';
 import { FormInput } from './FormInput';
 import { PrimaryButton } from './PrimaryButton';
 import { Colors, Shadow } from '../constants/theme';
-import { RegisterFormValues } from '../schemas/authSchema';
-
-interface RegisterFormCardProps {
-  control: Control<RegisterFormValues>;
-  errors: FieldErrors<RegisterFormValues>;
-  showPassword: boolean;
-  togglePassword: () => void;
-  showConfirm: boolean;
-  toggleConfirm: () => void;
-  handleRegister: () => void;
-  isSubmitting: boolean;
-}
+import type { RegisterFormCardProps } from '@/types/RegisterFormCard';
 
 export function RegisterFormCard({
   control,

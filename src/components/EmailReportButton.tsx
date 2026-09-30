@@ -2,10 +2,7 @@ import React from 'react';
 import { Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../constants/theme';
-
-interface EmailReportButtonProps {
-  onPress: () => void;
-}
+import type { EmailReportButtonProps } from '@/types/EmailReportButton';
 
 export function EmailReportButton({ onPress }: EmailReportButtonProps) {
   return (

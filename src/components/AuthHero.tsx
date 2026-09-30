@@ -4,14 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Shadow } from '../constants/theme';
-
-interface AuthHeroProps {
-  icon: string;
-  gradientColors: readonly [string, string];
-  glowColor: string;
-  title: string;
-  subtitle: string;
-}
+import type { AuthHeroProps } from '@/types/AuthHero';
 
 export function AuthHero({ icon, gradientColors, glowColor, title, subtitle }: AuthHeroProps) {
   return (

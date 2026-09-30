@@ -3,15 +3,7 @@ import { TouchableOpacity, Text, ActivityIndicator, StyleSheet } from 'react-nat
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, Shadow, BorderRadius, Spacing } from '../constants/theme';
-
-interface Props {
-  label: string;
-  icon: string;
-  onPress: () => void;
-  disabled?: boolean;
-  loading?: boolean;
-  gradientColors?: [string, string];
-}
+import type { Props } from '@/types/PrimaryButton';
 
 export const PrimaryButton = ({
   label,

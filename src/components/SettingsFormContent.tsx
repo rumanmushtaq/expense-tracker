@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Switch } from 'react-native';
-import { Controller, Control, FieldErrors } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { CardSection } from './CardSection';
@@ -9,20 +9,8 @@ import { FormLabel } from './FormLabel';
 import { FormInput } from './FormInput';
 import { PrimaryButton } from './PrimaryButton';
 import { Colors } from '../constants/theme';
-import { SettingsFormValues, CURRENCIES } from '../schemas/settingsSchema';
-import { AuthUser } from '../context/AuthContext';
-
-interface SettingsFormContentProps {
-  control: Control<SettingsFormValues>;
-  errors: FieldErrors<SettingsFormValues>;
-  currency: string;
-  user: AuthUser | null;
-  biometricEnabled: boolean;
-  handleBiometricToggle: (value: boolean) => void;
-  handleSave: () => void;
-  isSubmitting: boolean;
-  requestSignOut: () => void;
-}
+import { CURRENCIES } from '../schemas/settingsSchema';
+import type { SettingsFormContentProps } from '@/types/SettingsFormContent';
 
 export function SettingsFormContent({
   control,

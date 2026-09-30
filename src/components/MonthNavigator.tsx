@@ -5,17 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Colors, BorderRadius, Spacing } from '../constants/theme';
 import { formatCurrency, getMonthLabel } from '../utils/helpers';
-
-interface MonthNavigatorProps {
-  year: number;
-  month: number;
-  monthTotal: number;
-  transactionCount: number;
-  avgPerDay: number;
-  currency: string;
-  onPrev: () => void;
-  onNext: () => void;
-}
+import type { MonthNavigatorProps } from '@/types/MonthNavigator';
 
 export function MonthNavigator({
   year,
