@@ -3,11 +3,15 @@ import React, { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as Linking from 'expo-linking';
+import * as SplashScreen from 'expo-splash-screen';
 import Toast from 'react-native-toast-message';
 import { ExpenseProvider } from '../context/ExpenseContext';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import { authApi } from '../api/auth';
 import { supabase } from '../config/supabase';
+
+// Keep the native splash visible until auth state is known — prevents login flash on refresh
+SplashScreen.preventAutoHideAsync();
 
 function AuthGuard() {
   const { user, loading } = useAuth();
@@ -24,13 +28,18 @@ function AuthGuard() {
     return () => subscription.unsubscribe();
   }, [router]);
 
-  // Standard auth guard
+  // Auth guard — runs once loading is resolved, then hides the splash
   useEffect(() => {
     if (loading) return;
+
     const inAuth = segments[0] === '(auth)';
     const onResetPassword = segments[1] === 'reset-password';
+
     if (!user && !inAuth) router.replace('/(auth)/login');
     else if (user && inAuth && !onResetPassword) router.replace('/(tabs)');
+
+    // Navigation state is set — safe to reveal the app now
+    SplashScreen.hideAsync();
   }, [user, loading, segments, router]);
 
   return null;
