@@ -1,49 +1,43 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Alert } from 'react-native';
+import { useForm } from 'react-hook-form';
+import { valibotResolver } from '@hookform/resolvers/valibot';
 import { useExpenses } from '../context/ExpenseContext';
-import { parsePositiveFloat } from '../utils/expenseFilters';
+import { SettingsSchema, SettingsFormValues, CURRENCIES } from '../schemas/settingsSchema';
 
-export const CURRENCIES = ['PKR', 'USD', 'EUR', 'GBP', 'INR', 'AED'] as const;
+export { CURRENCIES };
 
 export function useSettingsForm() {
   const { settings, updateSettings } = useExpenses();
 
-  const [email, setEmail] = useState<string>(settings.emailAddress);
-  const [budget, setBudget] = useState<string>(String(settings.monthlyBudget));
-  const [currency, setCurrency] = useState<string>(settings.currency);
-  const [emailNotifs, setEmailNotifs] = useState<boolean>(settings.emailNotifications);
+  const form = useForm<SettingsFormValues>({
+    resolver: valibotResolver(SettingsSchema),
+    defaultValues: {
+      emailAddress: settings.emailAddress,
+      monthlyBudget: String(settings.monthlyBudget),
+      currency: settings.currency as SettingsFormValues['currency'],
+      emailNotifications: settings.emailNotifications,
+    },
+  });
 
   useEffect(() => {
-    setEmail(settings.emailAddress);
-    setBudget(String(settings.monthlyBudget));
-    setCurrency(settings.currency);
-    setEmailNotifs(settings.emailNotifications);
+    form.reset({
+      emailAddress: settings.emailAddress,
+      monthlyBudget: String(settings.monthlyBudget),
+      currency: settings.currency as SettingsFormValues['currency'],
+      emailNotifications: settings.emailNotifications,
+    });
   }, [settings]);
 
-  const handleSave = async () => {
-    const parsedBudget = parsePositiveFloat(budget);
-    if (parsedBudget === null) {
-      Alert.alert('Invalid Budget', 'Please enter a valid budget amount.');
-      return;
-    }
+  const handleSave = form.handleSubmit(async (data) => {
     await updateSettings({
-      emailAddress: email.trim(),
-      currency: currency.trim() || 'PKR',
-      monthlyBudget: parsedBudget,
-      emailNotifications: emailNotifs,
+      emailAddress: data.emailAddress.trim(),
+      currency: data.currency,
+      monthlyBudget: parseFloat(data.monthlyBudget),
+      emailNotifications: data.emailNotifications,
     });
     Alert.alert('Saved! ✅', 'Your settings have been updated.');
-  };
+  });
 
-  return {
-    email,
-    setEmail,
-    budget,
-    setBudget,
-    currency,
-    setCurrency,
-    emailNotifs,
-    setEmailNotifs,
-    handleSave,
-  };
+  return { form, handleSave };
 }

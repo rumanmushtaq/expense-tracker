@@ -1,14 +1,8 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Switch,
-} from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Switch } from 'react-native';
+import { Controller } from 'react-hook-form';
 import Animated, { FadeInUp } from 'react-native-reanimated';
-import { Colors, Spacing, FontSize, BorderRadius } from '../constants/theme';
+import { Colors } from '../constants/theme';
 import { FormLabel } from '../components/FormLabel';
 import { FormInput } from '../components/FormInput';
 import { PrimaryButton } from '../components/PrimaryButton';
@@ -17,46 +11,64 @@ import { SectionHeader } from '../components/SectionHeader';
 import { useSettingsForm, CURRENCIES } from '../hooks/useSettingsForm';
 
 export default function SettingsScreen() {
-  const {
-    email, setEmail,
-    budget, setBudget,
-    currency, setCurrency,
-    emailNotifs, setEmailNotifs,
-    handleSave,
-  } = useSettingsForm();
+  const { form, handleSave } = useSettingsForm();
+  const { control, formState: { errors }, watch } = form;
+  const currency = watch('currency');
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      className="flex-1 bg-background"
+      contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
+      showsVerticalScrollIndicator={false}
+    >
 
       {/* Email Section */}
       <Animated.View entering={FadeInUp.delay(0).duration(400)}>
         <CardSection>
           <SectionHeader icon="mail" title="Email Reports" color={Colors.primary} />
 
-          <View style={styles.field}>
+          <View className="mb-4">
             <FormLabel>Email Address</FormLabel>
-            <FormInput
-              icon="at"
-              value={email}
-              onChangeText={setEmail}
-              placeholder="your@email.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              containerStyle={{ backgroundColor: Colors.surfaceLight, borderColor: Colors.border }}
+            <Controller
+              control={control}
+              name="emailAddress"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <FormInput
+                  icon="at"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  placeholder="your@email.com"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  containerStyle={{ backgroundColor: Colors.surfaceLight, borderColor: Colors.border }}
+                />
+              )}
             />
-            <Text style={styles.hint}>Monthly expense report sent on the 1st of each month</Text>
+            {errors.emailAddress && (
+              <Text className="text-danger text-xs font-semibold mt-1">{errors.emailAddress.message}</Text>
+            )}
+            <Text className="text-muted text-xs mt-1.5 leading-4">
+              Monthly expense report sent on the 1st of each month
+            </Text>
           </View>
 
-          <View style={styles.toggleRow}>
-            <View style={styles.toggleInfo}>
-              <Text style={styles.toggleLabel}>Email Notifications</Text>
-              <Text style={styles.toggleHint}>Auto-send monthly reports</Text>
+          <View className="flex-row justify-between items-center pt-2 border-t border-glass-border mt-2">
+            <View className="flex-1">
+              <Text className="text-white text-md font-semibold">Email Notifications</Text>
+              <Text className="text-muted text-xs mt-0.5">Auto-send monthly reports</Text>
             </View>
-            <Switch
-              value={emailNotifs}
-              onValueChange={setEmailNotifs}
-              trackColor={{ false: Colors.surfaceElevated, true: Colors.primary + '50' }}
-              thumbColor={emailNotifs ? Colors.primary : Colors.textMuted}
+            <Controller
+              control={control}
+              name="emailNotifications"
+              render={({ field: { value, onChange } }) => (
+                <Switch
+                  value={value}
+                  onValueChange={onChange}
+                  trackColor={{ false: Colors.surfaceElevated, true: Colors.primary + '50' }}
+                  thumbColor={value ? Colors.primary : Colors.textMuted}
+                />
+              )}
             />
           </View>
         </CardSection>
@@ -67,34 +79,57 @@ export default function SettingsScreen() {
         <CardSection>
           <SectionHeader icon="wallet" title="Budget" color={Colors.success} />
 
-          <View style={styles.field}>
+          <View className="mb-4">
             <FormLabel>Monthly Budget</FormLabel>
-            <FormInput
-              prefix={currency}
-              value={budget}
-              onChangeText={setBudget}
-              placeholder="50000"
-              keyboardType="numeric"
-              containerStyle={{ backgroundColor: Colors.surfaceLight, borderColor: Colors.border }}
+            <Controller
+              control={control}
+              name="monthlyBudget"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <FormInput
+                  prefix={currency}
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  placeholder="50000"
+                  keyboardType="numeric"
+                  containerStyle={{ backgroundColor: Colors.surfaceLight, borderColor: Colors.border }}
+                />
+              )}
             />
+            {errors.monthlyBudget && (
+              <Text className="text-danger text-xs font-semibold mt-1">{errors.monthlyBudget.message}</Text>
+            )}
           </View>
 
-          <View style={styles.field}>
+          <View className="mb-4">
             <FormLabel>Currency</FormLabel>
-            <View style={styles.currencyRow}>
-              {CURRENCIES.map((c) => (
-                <TouchableOpacity
-                  key={c}
-                  style={[styles.currencyChip, currency === c && styles.currencyChipActive]}
-                  onPress={() => setCurrency(c)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={[styles.currencyChipText, currency === c && styles.currencyChipTextActive]}>
-                    {c}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            <Controller
+              control={control}
+              name="currency"
+              render={({ field: { value, onChange } }) => (
+                <View className="flex-row flex-wrap gap-2">
+                  {CURRENCIES.map((c) => (
+                    <TouchableOpacity
+                      key={c}
+                      className="px-[18px] py-2.5 rounded-full border-[1.5px]"
+                      style={{
+                        backgroundColor: value === c ? Colors.primary + '15' : Colors.surfaceLight,
+                        borderColor: value === c ? Colors.primary : Colors.glassBorder,
+                      }}
+                      onPress={() => onChange(c)}
+                      activeOpacity={0.7}
+                    >
+                      <Text
+                        className="text-sm font-bold tracking-[0.5px]"
+                        style={{ color: value === c ? Colors.primary : Colors.textSecondary }}
+                      >
+                        {c}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            />
           </View>
         </CardSection>
       </Animated.View>
@@ -103,15 +138,15 @@ export default function SettingsScreen() {
       <Animated.View entering={FadeInUp.delay(200).duration(400)}>
         <CardSection>
           <SectionHeader icon="sparkles" title="About" color={Colors.warning} />
-          <View style={styles.aboutGrid}>
+          <View className="gap-3">
             {[
               { label: 'Version', value: '2.0.0' },
               { label: 'Built with', value: 'React Native + Expo' },
               { label: 'Developer', value: 'Ruman Mushtaq' },
             ].map(({ label, value }) => (
-              <View key={label} style={styles.aboutItem}>
-                <Text style={styles.aboutLabel}>{label}</Text>
-                <Text style={styles.aboutValue}>{value}</Text>
+              <View key={label} className="flex-row justify-between items-center">
+                <Text className="text-muted text-sm font-medium">{label}</Text>
+                <Text className="text-secondary text-sm font-semibold">{value}</Text>
               </View>
             ))}
           </View>
@@ -121,99 +156,14 @@ export default function SettingsScreen() {
       {/* Save Button */}
       <Animated.View entering={FadeInUp.delay(300).duration(400)}>
         <PrimaryButton
-          label="Save Settings"
+          label={form.formState.isSubmitting ? 'Saving...' : 'Save Settings'}
           icon="checkmark-circle"
           onPress={handleSave}
+          disabled={form.formState.isSubmitting}
         />
       </Animated.View>
 
-      <View style={{ height: 40 }} />
+      <View className="h-10" />
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  content: {
-    padding: Spacing.md,
-    paddingBottom: 100,
-  },
-  field: {
-    marginBottom: Spacing.md,
-  },
-  hint: {
-    color: Colors.textMuted,
-    fontSize: FontSize.xs,
-    marginTop: 6,
-    lineHeight: 16,
-  },
-  toggleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: Spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: Colors.glassBorder,
-    marginTop: Spacing.sm,
-  },
-  toggleInfo: {
-    flex: 1,
-  },
-  toggleLabel: {
-    color: Colors.text,
-    fontSize: FontSize.md,
-    fontWeight: '600',
-  },
-  toggleHint: {
-    color: Colors.textMuted,
-    fontSize: FontSize.xs,
-    marginTop: 2,
-  },
-  currencyRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.sm,
-  },
-  currencyChip: {
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderRadius: BorderRadius.round,
-    backgroundColor: Colors.surfaceLight,
-    borderWidth: 1.5,
-    borderColor: Colors.glassBorder,
-  },
-  currencyChipActive: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primary + '15',
-  },
-  currencyChipText: {
-    color: Colors.textSecondary,
-    fontSize: FontSize.sm,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  currencyChipTextActive: {
-    color: Colors.primary,
-  },
-  aboutGrid: {
-    gap: 12,
-  },
-  aboutItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  aboutLabel: {
-    color: Colors.textMuted,
-    fontSize: FontSize.sm,
-    fontWeight: '500',
-  },
-  aboutValue: {
-    color: Colors.textSecondary,
-    fontSize: FontSize.sm,
-    fontWeight: '600',
-  },
-});

@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { ExpenseCard } from '../components/ExpenseCard';
 import { EmptyState } from '../components/EmptyState';
-import { Colors, Spacing, FontSize, BorderRadius, Shadow } from '../constants/theme';
+import { Colors, BorderRadius, Spacing } from '../constants/theme';
 import { formatCurrency, getMonthLabel } from '../utils/helpers';
 import { useHistory } from '../hooks/useHistory';
 
@@ -24,45 +24,50 @@ export default function HistoryScreen() {
   } = useHistory();
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-background">
       {/* Month Navigator */}
       <Animated.View entering={FadeInDown.duration(500)}>
         <LinearGradient
           colors={[Colors.primary + '15', Colors.primary + '05']}
           style={styles.monthNav}
         >
-          <TouchableOpacity onPress={goToPrevMonth} style={styles.navButton}>
+          <TouchableOpacity onPress={goToPrevMonth} className="w-10 h-10 rounded-theme-md bg-surface-light justify-center items-center border border-glass-border">
             <Ionicons name="chevron-back" size={20} color={Colors.textSecondary} />
           </TouchableOpacity>
 
-          <View style={styles.monthInfo}>
-            <Text style={styles.monthLabel}>
+          <View className="items-center flex-1">
+            <Text className="text-secondary text-xs font-semibold uppercase tracking-[1px]">
               {getMonthLabel(selectedYear, selectedMonth)}
             </Text>
-            <Text style={styles.monthTotal}>
+            <Text className="text-white text-xxl font-black mt-1 tracking-[-1px]">
               {formatCurrency(monthTotal, settings.currency)}
             </Text>
-            <View style={styles.monthMeta}>
-              <Text style={styles.monthMetaText}>
+            <View className="flex-row items-center mt-1.5 gap-1.5">
+              <Text className="text-muted text-xs font-medium">
                 {filteredExpenses.length} transactions
               </Text>
-              <View style={styles.metaDot} />
-              <Text style={styles.monthMetaText}>
+              <View className="w-[3px] h-[3px] rounded-sm bg-dim" />
+              <Text className="text-muted text-xs font-medium">
                 ~{formatCurrency(Math.round(avgPerDay), settings.currency)}/day
               </Text>
             </View>
           </View>
 
-          <TouchableOpacity onPress={goToNextMonth} style={styles.navButton}>
+          <TouchableOpacity onPress={goToNextMonth} className="w-10 h-10 rounded-theme-md bg-surface-light justify-center items-center border border-glass-border">
             <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
           </TouchableOpacity>
         </LinearGradient>
       </Animated.View>
 
       {/* Email Report Button */}
-      <TouchableOpacity style={styles.emailButton} onPress={handleSendReport} activeOpacity={0.7}>
+      <TouchableOpacity
+        className="flex-row items-center justify-center mx-4 mb-4 py-2.5 rounded-theme-md border gap-2"
+        style={{ borderColor: Colors.primary + '30', backgroundColor: Colors.primary + '08' }}
+        onPress={handleSendReport}
+        activeOpacity={0.7}
+      >
         <Ionicons name="mail-outline" size={16} color={Colors.primary} />
-        <Text style={styles.emailButtonText}>Send Monthly Report</Text>
+        <Text className="text-primary text-sm font-bold flex-1">Send Monthly Report</Text>
         <Ionicons name="arrow-forward" size={14} color={Colors.primary} />
       </TouchableOpacity>
 
@@ -93,10 +98,6 @@ export default function HistoryScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
   monthNav: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -106,70 +107,6 @@ const styles = StyleSheet.create({
     padding: Spacing.lg,
     borderWidth: 1,
     borderColor: Colors.glassBorder,
-  },
-  navButton: {
-    width: 40,
-    height: 40,
-    borderRadius: BorderRadius.md,
-    backgroundColor: Colors.surfaceLight,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
-  },
-  monthInfo: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  monthLabel: {
-    color: Colors.textSecondary,
-    fontSize: FontSize.sm,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  monthTotal: {
-    color: Colors.text,
-    fontSize: FontSize.xxl,
-    fontWeight: '900',
-    marginTop: 4,
-    letterSpacing: -1,
-  },
-  monthMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 6,
-    gap: 6,
-  },
-  monthMetaText: {
-    color: Colors.textMuted,
-    fontSize: FontSize.xs,
-    fontWeight: '500',
-  },
-  metaDot: {
-    width: 3,
-    height: 3,
-    borderRadius: 1.5,
-    backgroundColor: Colors.textDim,
-  },
-  emailButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: Spacing.md,
-    marginBottom: Spacing.md,
-    padding: Spacing.sm + 2,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
-    borderColor: Colors.primary + '30',
-    backgroundColor: Colors.primary + '08',
-    gap: 8,
-  },
-  emailButtonText: {
-    color: Colors.primary,
-    fontSize: FontSize.sm,
-    fontWeight: '700',
-    flex: 1,
   },
   list: {
     paddingHorizontal: Spacing.md,

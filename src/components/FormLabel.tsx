@@ -1,22 +1,12 @@
 import React from 'react';
-import { Text, StyleSheet } from 'react-native';
-import { Colors, FontSize } from '../constants/theme';
+import { Text } from 'react-native';
 
 interface Props {
   children: string;
 }
 
 export const FormLabel = ({ children }: Props) => (
-  <Text style={styles.label}>{children}</Text>
+  <Text className="text-secondary text-xs font-bold mb-2 uppercase tracking-[0.8px]">
+    {children}
+  </Text>
 );
-
-const styles = StyleSheet.create({
-  label: {
-    color: Colors.textSecondary,
-    fontSize: FontSize.xs,
-    fontWeight: '700',
-    marginBottom: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-  },
-});

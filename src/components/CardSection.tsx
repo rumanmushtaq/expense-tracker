@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react';
-import { View, StyleSheet, ViewStyle } from 'react-native';
-import { Colors, Spacing, BorderRadius, Shadow } from '../constants/theme';
+import { View, ViewStyle } from 'react-native';
 
 interface Props {
   children: ReactNode;
@@ -8,16 +7,10 @@ interface Props {
 }
 
 export const CardSection = ({ children, style }: Props) => (
-  <View style={[styles.card, Shadow.sm, style]}>{children}</View>
+  <View
+    className="bg-surface rounded-theme-xl p-6 mb-4 border border-glass-border"
+    style={style}
+  >
+    {children}
+  </View>
 );
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.lg,
-    marginBottom: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
-  },
-});

@@ -2,7 +2,7 @@ import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Colors, Spacing, FontSize, BorderRadius, Shadow } from '../constants/theme';
+import { Colors, Shadow, BorderRadius, Spacing } from '../constants/theme';
 
 interface Props {
   label: string;
@@ -27,7 +27,7 @@ export const PrimaryButton = ({
       style={[styles.button, !disabled && Shadow.glow(gradientColors[0])]}
     >
       <Ionicons name={icon as any} size={22} color="#fff" />
-      <Text style={styles.text}>{label}</Text>
+      <Text className="text-white text-lg font-extrabold tracking-[0.3px]">{label}</Text>
     </LinearGradient>
   </TouchableOpacity>
 );
@@ -41,11 +41,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     marginTop: Spacing.sm,
-  },
-  text: {
-    color: '#fff',
-    fontSize: FontSize.lg,
-    fontWeight: '800',
-    letterSpacing: 0.3,
   },
 });
