@@ -1,12 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { AuthHero } from '../../components/AuthHero';
 import { ForgotPasswordFormCard } from '../../components/ForgotPasswordFormCard';
+import { AuthFooterLink } from '../../components/AuthFooterLink';
 import { Colors } from '../../constants/theme';
 import { useForgotPasswordForm } from '../../hooks/useForgotPasswordForm';
 
@@ -43,16 +42,11 @@ export default function ForgotPasswordScreen() {
           isSubmitting={form.formState.isSubmitting}
         />
 
-        <Animated.View entering={FadeInUp.delay(400).duration(400)} className="flex-row justify-center mt-7">
-          <TouchableOpacity
-            onPress={() => router.replace('/(auth)/login')}
-            className="flex-row items-center gap-1.5"
-            activeOpacity={0.7}
-          >
-            <Ionicons name="arrow-back" size={16} color={Colors.primary} />
-            <Text className="text-primary text-sm font-bold">Back to Sign In</Text>
-          </TouchableOpacity>
-        </Animated.View>
+        <AuthFooterLink
+          icon="arrow-back"
+          linkText="Back to Sign In"
+          onPress={() => router.replace('/(auth)/login')}
+        />
       </KeyboardAwareScrollView>
     </View>
   );

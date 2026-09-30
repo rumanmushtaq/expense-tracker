@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { AuthHero } from '../../components/AuthHero';
 import { LoginFormCard } from '../../components/LoginFormCard';
+import { AuthFooterLink } from '../../components/AuthFooterLink';
 import { Colors } from '../../constants/theme';
 import { useLoginForm } from '../../hooks/useLoginForm';
 import { useAuth } from '../../context/AuthContext';
@@ -50,15 +50,11 @@ export default function LoginScreen() {
           onForgotPassword={() => router.push('/(auth)/forgot-password' as any)}
         />
 
-        <Animated.View
-          entering={FadeInUp.delay(400).duration(400)}
-          className="flex-row justify-center mt-7 items-center"
-        >
-          <Text className="text-muted text-sm">Don't have an account?</Text>
-          <TouchableOpacity onPress={() => router.push('/(auth)/register')} activeOpacity={0.7}>
-            <Text className="text-primary text-sm font-black"> Create Account</Text>
-          </TouchableOpacity>
-        </Animated.View>
+        <AuthFooterLink
+          prompt="Don't have an account?"
+          linkText="Create Account"
+          onPress={() => router.push('/(auth)/register')}
+        />
       </KeyboardAwareScrollView>
     </View>
   );

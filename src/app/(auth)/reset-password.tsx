@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { AuthHero } from '../../components/AuthHero';
 import { ResetPasswordFormCard } from '../../components/ResetPasswordFormCard';
+import { AuthFooterLink } from '../../components/AuthFooterLink';
 import { Colors } from '../../constants/theme';
 import { useResetPasswordForm } from '../../hooks/useResetPasswordForm';
 
@@ -46,15 +46,11 @@ export default function ResetPasswordScreen() {
           isSubmitting={form.formState.isSubmitting}
         />
 
-        <Animated.View
-          entering={FadeInUp.delay(400).duration(400)}
-          className="flex-row justify-center mt-7 items-center"
-        >
-          <Text className="text-muted text-sm">Remember your password?</Text>
-          <TouchableOpacity onPress={() => router.replace('/(auth)/login')} activeOpacity={0.7}>
-            <Text className="text-primary text-sm font-black"> Sign In</Text>
-          </TouchableOpacity>
-        </Animated.View>
+        <AuthFooterLink
+          prompt="Remember your password?"
+          linkText="Sign In"
+          onPress={() => router.replace('/(auth)/login')}
+        />
       </KeyboardAwareScrollView>
     </View>
   );
