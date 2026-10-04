@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { useForm } from 'react-hook-form';
 import { valibotResolver } from '@hookform/resolvers/valibot';
 import { useExpenses } from '../context/ExpenseContext';
@@ -19,7 +20,7 @@ export function useAddExpense() {
 
   const handleSave = form.handleSubmit(async (data) => {
     try {
-      const today = new Date().toISOString().split('T')[0];
+      const today = format(new Date(), 'yyyy-MM-dd');
       await addExpense({
         title: data.title,
         amount: data.amount,

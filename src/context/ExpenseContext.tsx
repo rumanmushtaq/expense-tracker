@@ -1,9 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { create } from 'zustand';
+import { format } from 'date-fns';
 import { Expense, NewExpense, UserSettings } from '../types';
 import { authApi } from '../api/auth';
 import { expensesApi } from '../api/expenses';
 import { settingsApi } from '../api/settings';
-import { isCurrentMonth, isToday, sumAmounts } from '../utils/expenseFilters';
+import { isToday, sumAmounts } from '../utils/expenseFilters';
 
 export const defaultSettings: UserSettings = {
   emailAddress: '',
@@ -12,103 +13,126 @@ export const defaultSettings: UserSettings = {
   emailNotifications: false,
 };
 
-interface ExpenseContextType {
+interface ExpenseState {
   expenses: Expense[];
+  historyExpenses: Expense[];
   settings: UserSettings;
   loading: boolean;
+  userId: string | null;
   addExpense: (expense: NewExpense) => Promise<void>;
   removeExpense: (id: string) => Promise<void>;
   updateSettings: (settings: UserSettings) => Promise<void>;
   refreshExpenses: () => Promise<void>;
+  fetchHistoryExpenses: (year: number, month: number) => Promise<void>;
   currentMonthTotal: number;
   todayTotal: number;
 }
 
-const ExpenseContext = createContext<ExpenseContextType | undefined>(undefined);
+export const useExpenses = create<ExpenseState>((set, get) => ({
+  expenses: [],
+  historyExpenses: [],
+  settings: defaultSettings,
+  loading: true,
+  userId: null,
+  currentMonthTotal: 0,
+  todayTotal: 0,
 
-export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [settings, setSettings] = useState<UserSettings>(defaultSettings);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [userId, setUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Load current session immediately on mount
-    authApi.getSession().then((session) => {
-      const id = session?.user?.id ?? null;
-      setUserId(id);
-      if (!id) setLoading(false);
-    });
-
-    // Listen for future auth changes (login / logout)
-    const { data: { subscription } } = authApi.onAuthStateChange((_event, session) => {
-      const id = session?.user?.id ?? null;
-      setUserId(id);
-      if (!id) {
-        setExpenses([]);
-        setSettings(defaultSettings);
-        setLoading(false);
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const loadData = useCallback(async (uid: string) => {
-    setLoading(true);
-    try {
-      const [loadedExpenses, loadedSettings] = await Promise.all([
-        expensesApi.getAll(uid),
-        settingsApi.get(uid),
-      ]);
-      setExpenses(loadedExpenses);
-      setSettings(loadedSettings);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (userId) loadData(userId);
-  }, [userId, loadData]);
-
-  const addExpense = async (expense: NewExpense) => {
+  addExpense: async (expense: NewExpense) => {
+    const { userId } = get();
     if (!userId) throw new Error('Not authenticated.');
-    const created = await expensesApi.create(expense, userId);
-    setExpenses((prev) => [created, ...prev]);
-  };
+    await expensesApi.create(expense, userId);
+    get().refreshExpenses();
+  },
 
-  const removeExpense = async (id: string) => {
+  removeExpense: async (id: string) => {
     await expensesApi.remove(id);
-    setExpenses((prev) => prev?.filter((e) => e.id !== id));
-  };
+    get().refreshExpenses();
+  },
 
-  const updateSettings = async (newSettings: UserSettings) => {
+  updateSettings: async (newSettings: UserSettings) => {
+    const { userId } = get();
     if (!userId) return;
     await settingsApi.save(newSettings, userId);
-    setSettings(newSettings);
-  };
+    set({ settings: newSettings });
+  },
 
-  const refreshExpenses = async () => {
+  refreshExpenses: async () => {
+    const { userId } = get();
     if (!userId) return;
-    const loaded = await expensesApi.getAll(userId);
-    setExpenses(loaded);
-  };
+    set({ loading: true });
+    
+    try {
+      const now = new Date();
+      const start = new Date(now.getFullYear(), now.getMonth(), 1);
+      const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+      
+      const loadedExpenses = await expensesApi.getByDateRange(
+        userId, 
+        format(start, 'yyyy-MM-dd'), 
+        format(end, 'yyyy-MM-dd')
+      );
+      const loadedSettings = await settingsApi.get(userId);
+      
+      const currentMonthTotal = sumAmounts(loadedExpenses);
+      const todayTotal = sumAmounts(loadedExpenses.filter(e => isToday(e.date, now)));
 
-  const now = new Date();
-  const currentMonthTotal = sumAmounts(expenses?.filter((e) => isCurrentMonth(e.date, now)) ?? []);
-  const todayTotal = sumAmounts(expenses?.filter((e) => isToday(e.date, now)) ?? []);
+      set({ 
+        expenses: loadedExpenses.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()), 
+        settings: loadedSettings,
+        currentMonthTotal,
+        todayTotal,
+      });
+    } finally {
+      set({ loading: false });
+    }
+  },
 
-  return (
-    <ExpenseContext.Provider
-      value={{ expenses, settings, loading, addExpense, removeExpense, updateSettings, refreshExpenses, currentMonthTotal, todayTotal }}
-    >
-      {children}
-    </ExpenseContext.Provider>
-  );
-};
+  fetchHistoryExpenses: async (year: number, month: number) => {
+    const { userId } = get();
+    if (!userId) return;
+    set({ loading: true });
+    try {
+      const start = new Date(year, month, 1);
+      const end = new Date(year, month + 1, 0, 23, 59, 59, 999);
+      
+      const loadedHistory = await expensesApi.getByDateRange(
+        userId, 
+        format(start, 'yyyy-MM-dd'), 
+        format(end, 'yyyy-MM-dd')
+      );
+      set({ 
+        historyExpenses: loadedHistory.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) 
+      });
+    } catch (err) {
+      console.error('Failed to fetch history:', err);
+    } finally {
+      set({ loading: false });
+    }
+  }
+}));
 
-export const useExpenses = (): ExpenseContextType => {
-  const ctx = useContext(ExpenseContext);
-  if (!ctx) throw new Error('useExpenses must be used within ExpenseProvider');
-  return ctx;
-};
+authApi.getSession().then((session) => {
+  const id = session?.user?.id ?? null;
+  useExpenses.setState({ userId: id });
+  if (id) {
+    useExpenses.getState().refreshExpenses();
+  } else {
+    useExpenses.setState({ loading: false });
+  }
+});
+
+authApi.onAuthStateChange((_event, session) => {
+  const id = session?.user?.id ?? null;
+  useExpenses.setState({ userId: id });
+  if (id) {
+    useExpenses.getState().refreshExpenses();
+  } else {
+    useExpenses.setState({ 
+      expenses: [], 
+      settings: defaultSettings, 
+      loading: false,
+      currentMonthTotal: 0,
+      todayTotal: 0
+    });
+  }
+});

@@ -7,7 +7,7 @@ import type { EmailReportButtonProps } from '@/types/EmailReportButton';
 export function EmailReportButton({ onPress }: EmailReportButtonProps) {
   return (
     <TouchableOpacity
-      className="flex-row items-center justify-center mx-4 mb-4 py-2.5 rounded-theme-md border gap-2"
+      className="flex-row items-center justify-center mx-4 mb-4 p-2.5 rounded-theme-md border gap-2"
       style={{ borderColor: Colors.primary + '30', backgroundColor: Colors.primary + '08' }}
       onPress={onPress}
       activeOpacity={0.7}

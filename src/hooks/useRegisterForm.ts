@@ -24,9 +24,11 @@ export function useRegisterForm() {
       return;
     }
     try {
-      await register(data.name, data.email, data.password);
-      form.reset();
+      const response = await register(data.name, data.email, data.password);
+      console.log("test it ", response)
+      // form.reset();
       const available = await biometric.isAvailable();
+      console.log("available", available)
       if (available) setBiometricModalVisible(true);
     } catch (e: any) {
       toast.error(e?.message || 'Something went wrong.', 'Registration Failed');

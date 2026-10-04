@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -48,6 +48,7 @@ export default function RegisterScreen() {
           handleRegister={handleRegister}
           isSubmitting={form.formState.isSubmitting}
         />
+        <View><Text className='text-white'>dsasdcadscs</Text></View>
 
         <ConfirmModal
           visible={biometricModalVisible}

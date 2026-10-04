@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { create } from 'zustand';
 import * as SecureStore from 'expo-secure-store';
 import { authApi } from '../api/auth';
 
@@ -8,7 +8,7 @@ export interface AuthUser {
   email: string;
 }
 
-interface AuthContextType {
+interface AuthState {
   user: AuthUser | null;
   loading: boolean;
   biometricEnabled: boolean;
@@ -25,8 +25,6 @@ interface AuthContextType {
 
 const BIO_KEY = 'biometric_enabled';
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
 function toAuthUser(supabaseUser: any): AuthUser {
   return {
     id: supabaseUser.id,
@@ -35,75 +33,55 @@ function toAuthUser(supabaseUser: any): AuthUser {
   };
 }
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [biometricEnabled, setBioState] = useState<boolean>(false);
+export const useAuth = create<AuthState>((set, get) => ({
+  user: null,
+  loading: true,
+  biometricEnabled: false,
 
-  useEffect(() => {
-    SecureStore.getItemAsync(BIO_KEY).then((val) => setBioState(val === 'true'));
-
-    const { data: { subscription } } = authApi.onAuthStateChange((_event, session) => {
-      setUser(session?.user ? toAuthUser(session.user) : null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const login = useCallback(async (email: string, password: string) => {
+  login: async (email, password) => {
     await authApi.signIn(email, password);
-  }, []);
-
-  const register = useCallback(async (name: string, email: string, password: string) => {
+  },
+  register: async (name, email, password) => {
     await authApi.signUp(name, email, password);
-  }, []);
-
-  const logout = useCallback(async () => {
+  },
+  logout: async () => {
     await authApi.signOut();
-  }, []);
-
-  const restoreSession = useCallback(async (): Promise<boolean> => {
+  },
+  restoreSession: async () => {
     const session = await authApi.getSession();
     if (!session?.user) return false;
-    setUser(toAuthUser(session.user));
+    set({ user: toAuthUser(session.user) });
     return true;
-  }, []);
-
-  const setBiometricEnabled = useCallback(async (value: boolean) => {
+  },
+  setBiometricEnabled: async (value) => {
     await SecureStore.setItemAsync(BIO_KEY, String(value));
-    setBioState(value);
-  }, []);
-
-  const resetPassword = useCallback(async (email: string, redirectTo?: string) => {
+    set({ biometricEnabled: value });
+  },
+  resetPassword: async (email, redirectTo) => {
     await authApi.resetPassword(email, redirectTo);
-  }, []);
-
-  const setNewPassword = useCallback(async (newPassword: string) => {
+  },
+  setNewPassword: async (newPassword) => {
     await authApi.setNewPassword(newPassword);
-  }, []);
-
-  const updateProfile = useCallback(async (name: string) => {
+  },
+  updateProfile: async (name) => {
     const updatedUser = await authApi.updateProfile(name);
-    if (updatedUser) setUser(toAuthUser(updatedUser));
-  }, []);
-
-  const updatePassword = useCallback(async (currentPassword: string, newPassword: string) => {
+    if (updatedUser) set({ user: toAuthUser(updatedUser) });
+  },
+  updatePassword: async (currentPassword, newPassword) => {
+    const { user } = get();
     if (!user?.email) throw new Error('Not authenticated.');
     await authApi.updatePassword(user.email, currentPassword, newPassword);
-  }, [user]);
+  },
+}));
 
-  return (
-    <AuthContext.Provider
-      value={{ user, loading, biometricEnabled, login, register, logout, restoreSession, setBiometricEnabled, resetPassword, setNewPassword, updateProfile, updatePassword }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
-}
+// Initialize store once
+SecureStore.getItemAsync(BIO_KEY).then((val) => {
+  useAuth.setState({ biometricEnabled: val === 'true' });
+});
 
-export function useAuth(): AuthContextType {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
-  return ctx;
-}
+authApi.onAuthStateChange((_event, session) => {
+  useAuth.setState({
+    user: session?.user ? toAuthUser(session.user) : null,
+    loading: false,
+  });
+});

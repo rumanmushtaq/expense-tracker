@@ -25,6 +25,12 @@ export default function HistoryScreen() {
     dismissDeleteModal,
   } = useHistory();
 
+  console.log("selectedYear", selectedYear)
+  console.log("selectedMonth", selectedMonth)
+  console.log("monthTotal", monthTotal)
+  console.log("filteredExpenses", filteredExpenses)
+  console.log("selectedYear", selectedYear)
+
   return (
     <View className="flex-1 bg-background">
       <MonthNavigator
@@ -40,7 +46,7 @@ export default function HistoryScreen() {
 
       <EmailReportButton onPress={handleSendReport} />
 
-      <ConfirmModal
+      {/* <ConfirmModal
         visible={deleteModalVisible}
         title="Delete Expense"
         message="This expense will be permanently removed. This action cannot be undone."
@@ -72,7 +78,7 @@ export default function HistoryScreen() {
             subtitle="Your expenses for this period will appear here"
           />
         }
-      />
+      /> */}
     </View>
   );
 }

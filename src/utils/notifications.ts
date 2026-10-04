@@ -1,7 +1,10 @@
 // expo-notifications/BackgroundFetch/TaskManager throw at require-time in Expo Go (SDK 53+).
 // Use lazy require() inside try/catch so the module loads safely in Expo Go.
-import { getExpenses, getSettings } from './storage';
 import { generateMonthlyReport, generateEmailBody } from './helpers';
+import { format } from 'date-fns';
+import { authApi } from '../api/auth';
+import { expensesApi } from '../api/expenses';
+import { settingsApi } from '../api/settings';
 
 type NotificationsModule = typeof import('expo-notifications');
 type BackgroundFetchModule = typeof import('expo-background-fetch');
@@ -40,13 +43,27 @@ if (TaskManager && BackgroundFetch) {
         return BackgroundFetch!.BackgroundFetchResult.NoData;
       }
       try {
-        const settings = await getSettings();
+        const session = await authApi.getSession();
+        const userId = session?.user?.id;
+        if (!userId) return BackgroundFetch!.BackgroundFetchResult.Failed;
+
+        const settings = await settingsApi.get(userId);
         if (!settings.emailNotifications || !settings.emailAddress) {
           return BackgroundFetch!.BackgroundFetchResult.NoData;
         }
+
         const lastMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
         const lastYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
-        const expenses = await getExpenses();
+        
+        // Fetch expenses for the last month to generate the report
+        const start = new Date(lastYear, lastMonth, 1);
+        const end = new Date(lastYear, lastMonth + 1, 0, 23, 59, 59, 999);
+        const expenses = await expensesApi.getByDateRange(
+          userId, 
+          format(start, 'yyyy-MM-dd'), 
+          format(end, 'yyyy-MM-dd')
+        );
+
         const report = generateMonthlyReport(expenses, lastYear, lastMonth);
         const { subject, body } = generateEmailBody(report, settings.currency);
 
@@ -106,12 +123,23 @@ export const requestNotificationPermissions = async (): Promise<boolean> => {
   }
 };
 
-export const sendMonthlyReportEmail = async (): Promise<void> => {
+export const sendMonthlyReportEmail = async (selectedMonth:number, selectedYear:number): Promise<void> => {
   if (!MailComposer) return;
-  const settings = await getSettings();
-  const now = new Date();
-  const expenses = await getExpenses();
-  const report = generateMonthlyReport(expenses, now.getFullYear(), now.getMonth());
+  const session = await authApi.getSession();
+  const userId = session?.user?.id;
+  if (!userId) return;
+
+  const settings = await settingsApi.get(userId);
+  
+  const start = new Date(selectedYear, selectedMonth, 1);
+  const end = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59, 999);
+  const expenses = await expensesApi.getByDateRange(
+    userId, 
+    format(start, 'yyyy-MM-dd'), 
+    format(end, 'yyyy-MM-dd')
+  );
+
+  const report = generateMonthlyReport(expenses, selectedYear, selectedMonth);
   const { subject, body } = generateEmailBody(report, settings.currency);
   try {
     const isAvailable = await MailComposer.isAvailableAsync();

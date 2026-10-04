@@ -57,9 +57,9 @@ export default function TabsLayout() {
         options={{
           title: 'Add',
           headerTitle: 'New Expense',
-          tabBarIcon: ({ color, focused }) => (
-            <View style={[styles.addButton, focused && styles.addButtonActive]}>
-              <Ionicons name="add" size={26} color={focused ? Colors.text : color} />
+          tabBarIcon: ({ color,size, focused }) => (
+              <View style={focused ? styles.activeTab : undefined}>
+              <Ionicons name="add" size={size} color={focused ? Colors.text : color} />
             </View>
           ),
         }}
